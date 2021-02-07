@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
+        <title>统计报表</title>
+        <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!--external css-->
+        <link href="lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
+        <!-- Custom styles for this template -->
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/style-responsive.css" rel="stylesheet">
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+        <script src="lib/echarts/echarts.min.js"></script>
+        <style type="text/css">
+            .sum_s{
+                background-color: #37a2da;
+                border-radius: 5px;
+                margin: 15px 0px;
+            }
+
+            .up_10 h3{
+                margin-left: 25px;
+                margin-bottom: 25px;
+                color: #FFFFFF;
+                font-family: Microsoft YaHei;
+                font-weight: bold;
+                font-size: 20px;
+                font-family: Microsoft YaHei;
+                /* width: 200px;
+                height: 13px; */
+                /* font-size: 15px;
+                font-family: Microsoft YaHei;
+                font-weight: bold;
+                line-height: 92px; */
+            }
+            .up_10 p{
+                /* width: 36px; */
+                /* height: 18px; */
+                /* font-size: 21px; */
+                margin-left: 28px;
+                font-family: Microsoft YaHei;
+                font-weight: bold;
+                color: #FFFFFF;
+                font-size: 25px;
+                /* line-height: 92px; */
+            }
+            .up_icon img{
+                float: right;
+                margin-right: 20px;
+                margin-top: 36px;
+                /* position: absolute; 
+                margin:auto auto; */
+            }
+        </style>
+
+    </head>
+
+    <body>
+        <section id="container">
+            <!-- **********************************************************************************************************************************************************
+                MAIN CONTENT 主体内容区部分
+                *********************************************************************************************************************************************************** -->
+            <!--main content start-->
+            <section id="main-content">
+                <section class="wrapper site-min-height">
+                    <!-- page start-->
+                    <div id="morris">
+                        <div class="row mt">
+                            <div class="col-md-4">
+                                <div class="sum_s">
+                                    <div class="row">
+                                        <div class="col-md-10 up_10"> 
+                                            <h3>本年值班日记填写数量</h3>
+                                            <p>126</p>
+                                        </div>
+                                        <div class="col-md-2 up_icon">
+                                            <img src="img/Framework/up_A.png"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="sum_s">
+                                    <div class="row">
+                                        <div class="col-md-10  up_10"> 
+                                            <h3>本年视频监控统计时长</h3>
+                                            <p>12626h</p>
+                                        </div>
+                                        <div class="col-md-2 up_icon">
+                                            <img src="img/Framework/up_B.png"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="sum_s">
+                                    <div class="row">
+                                        <div class="col-md-10  up_10"> 
+                                            <h3>本年作战演练次数</h3>
+                                            <p>26次</p>
+                                        </div>
+                                        <div class="col-md-2 up_icon">
+                                            <img src="img/Framework/up_C.png"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="zhuzhuangtu">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h4>在位率（%）</h4>
+                                <div>
+                                    <div id="main" style="width: 100%;height:315px"></div>
+                                    <script type="text/javascript">
+                                        // 基于准备好的dom，初始化echarts实例
+                                        var myChart = echarts.init(document.getElementById('main'));
+
+                                        // 指定图表的配置项和数据
+                                        var option = {
+                                            tooltip: {
+                                                trigger: 'axis',
+                                                formatter: function (params) {   // 自定义toolTip提示框显示内容
+                                                    // alert(JSON.stringify(params));
+                                                    var res = ''
+                                                    for (var i = 0; i < params.length; i++) {
+                                                        if (i === 0) {
+                                                            res += '<p>' + params[i].seriesName + ':' + params[i].data + '</p>'
+                                                        }
+                                                        if (i === 1) {
+                                                            res += '<p>' + params[i].seriesName + ':' + params[i].data + '%</p>'
+                                                        }
+                                                    }
+                                                    return res;
+                                                },
+                                                axisPointer: {
+                                                    // type: 'cross',  鼠标移动上去显示 虚刻度线
+                                                    crossStyle: {
+                                                        color: '#999'
+                                                    }
+                                                },
+                                            },
+                                            toolbox: {
+                                                show: false,
+                                                top: 10,
+                                                right: 10,
+                                                feature: {
+                                                    mark: {show: false},
+                                                    magicType: {show: false, type: ['line', 'bar']},
+                                                    restore: {show: false},
+                                                    saveAsImage: {show: false}
+                                                }
+                                            },
+                                            grid: {//调整统计图上下左右边距
+                                                top: 80,
+                                                right: 70,
+                                                bottom: 50,
+                                                left: 75
+                                            },
+                                            legend: {
+                                                top: 45, // 统计图两个方块到Title的距离
+                                                left: 'center',
+                                                data: ['一班', '二班']
+                                            },
+                                            calculable: true,
+                                            xAxis: [
+                                                {
+                                                    type: 'category',
+                                                    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                                                    axisPointer: {
+                                                        type: 'shadow'
+                                                    },
+                                                    axisLabel: {
+                                                        show: true,
+                                                        textStyle: {
+                                                            color: '#666666',
+                                                            fontSize: 15
+                                                        }
+                                                    },
+                                                    axisLine: {// X轴线的颜色
+                                                        lineStyle: {
+                                                            color: '#000000',
+                                                            width: 1
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            yAxis: [
+                                                {
+                                                    splitLine: {//控制刻度横线的显示
+                                                        show: false
+                                                    },
+                                                    type: 'value',
+                                                    max: 100,
+                                                    min: 25,
+                                                    interval: 25,
+                                                    minInterval: 5,
+                                                    nameLocation: "center",
+                                                    nameGap: 35,
+                                                    nameRotate: 0,
+                                                    nameTextStyle: {
+                                                        fontSize: 16,
+                                                    },
+                                                    axisLabel: {
+                                                        formatter: '{value}',
+                                                        show: true,
+                                                        textStyle: {
+                                                            color: '#000000',
+                                                            fontSize: 10
+                                                        }
+                                                    },
+                                                    axisLine: {// Y轴线的颜色、和轴线的宽度
+                                                        lineStyle: {
+                                                            color: '#000000',
+                                                            width: 1
+
+                                                        }
+                                                    },
+                                                },
+                                                {
+                                                    splitLine: {
+                                                        show: true
+                                                    },
+                                                }
+                                            ],
+                                            series: [
+                                                {
+                                                    name: '一班',
+                                                    type: 'bar',
+                                                    yAxisIndex: 0,
+                                                    data: [35, 45, 60, 45, 40, 65, 90, 55, 35],
+                                                    itemStyle: {//双Y轴A柱的柱体颜色
+                                                        normal: {
+                                                            color: '#37a2da'
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    name: '二班',
+                                                    type: 'bar',
+                                                    yAxisIndex: 1,
+                                                    data: [35, 50, 70, 55, 50, 60, 60, 65, 100],
+                                                    itemStyle: {//双Y轴B柱的柱体颜色
+                                                        normal: {
+                                                            color: '#67e0e3'
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        };
+
+                                        // 使用刚指定的配置项和数据显示图表。
+                                        myChart.setOption(option);
+                                        setTimeout(function () {
+                                            window.onresize = function () {
+                                                myChart.resize();
+                                                myChart2.resize();
+                                                myChart3.resize();
+                                                myChart4.resize();
+                                                myChart5.resize();
+                                            }
+                                        }, 20)
+                                    </script>
+
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div>
+                                    <h4>编制人数（人）</h4>
+                                    <div id="zhuzhuangtu2" style="width: 100%;height:315px"></div>
+                                    <script type="text/javascript">
+                                        var myChart2 = echarts.init(document.getElementById('zhuzhuangtu2'));
+                                        var ageArea = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', ];
+                                        var FbarData = [310, 300, 340, 370, 385, 440, 415, 440, 415]; //二班
+                                        var MbarData = [-120, -130, -100, -135, -190, -225, -210, -225, -210]; //一班
+
+                                        option = {
+                                            color: ['#37a2da', '#67e0e3', ],
+                                            tooltip: {
+                                                trigger: 'axis',
+                                                axisPointer: {// 坐标轴指示器，坐标轴触发有效
+                                                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                                },
+                                                formatter: function (params, ticket, callback) {
+                                                    console.log(params)
+                                                    var res = params[0].name;
+                                                    for (var i = 0, l = params.length; i < l; i++) {
+                                                        res += '<br/>' + params[i].seriesName + ' : ' + Math.abs(params[i].value);
+                                                    }
+                                                    setTimeout(function () {
+                                                        // 仅为了模拟异步回调
+                                                        callback(ticket, res);
+                                                    }, 500)
+                                                    return 'loading...';
+                                                }
+                                            },
+                                            legend: {
+                                                data: ['一班', '二班'],
+                                                itemGap: 20,
+                                            },
+                                            grid: {
+                                                left: '3%',
+                                                right: '4%',
+                                                bottom: '3%',
+                                                containLabel: true
+                                            },
+                                            xAxis: [
+                                                {
+                                                    axisLabel: {formatter: function (value) {
+                                                            return Math.abs(value);
+                                                        }//显示的数值都取绝对值
+                                                    },
+                                                    type: 'value'
+                                                }
+                                            ],
+                                            yAxis: [
+                                                {
+                                                    type: 'category',
+                                                    axisTick: {show: false},
+                                                    data: ageArea
+                                                }
+                                            ],
+                                            series: [
+                                                {
+                                                    name: '二班',
+                                                    type: 'bar',
+                                                    stack: '总量',
+                                                    label: {
+                                                        normal: {
+                                                            show: true,
+                                                            position: 'right',
+                                                        }
+                                                    },
+                                                    data: FbarData
+                                                },
+                                                {
+                                                    name: '一班',
+                                                    type: 'bar',
+                                                    stack: '总量',
+                                                    label: {
+                                                        normal: {
+                                                            show: true,
+                                                            position: 'left',
+                                                            formatter: function (v) {
+                                                                return Math.abs(v.data)
+                                                            }
+                                                        }
+                                                    },
+                                                    data: MbarData
+                                                }
+                                            ]
+                                        };
+                                        myChart2.setOption(option);
+                                        window.onresize = function () {}
+                                    </script>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="graph_bingzhungtu">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h4>演练次数（次）</h4>
+                                <div class="chart_pie">
+                                    <div id="pie1" style="width: 100%;height:315px"></div>
+                                    <script type="text/javascript">
+                                        // 基于准备好的dom，初始化echarts实例
+                                        var myChart3 = echarts.init(document.getElementById('pie1'));
+
+                                        myChart3.setOption({
+                                            legend: {
+                                                // orient 设置布局方式，默认水平布局，可选值：'horizontal'（水平） ¦ 'vertical'（垂直）
+                                                orient: 'vertical',
+                                                // x 设置水平安放位置，默认全图居中，可选值：'center' ¦ 'left' ¦ 'right' ¦ {number}（x坐标，单位px）
+                                                x: 'left',
+                                                // y 设置垂直安放位置，默认全图顶端，可选值：'top' ¦ 'bottom' ¦ 'center' ¦ {number}（y坐标，单位px）
+                                                y: 'center',
+                                                itemWidth: 24, // 设置图例图形的宽
+                                                itemHeight: 15, // 设置图例图形的高
+                                                textStyle: {
+                                                    color: '#000'  // 图例文字颜色
+                                                },
+                                                // itemGap设置各个item之间的间隔，单位px，默认为10，横向布局时为水平间隔，纵向布局时为纵向间隔
+                                                itemGap: 10,
+                                                backgroundColor: '#eee', // 设置整个图例区域背景颜色
+                                                data: ['一班', '二班', '三班', '四班', '五班']
+                                            },
+                                            series: [
+                                                {
+                                                    name: '访问来源',
+                                                    type: 'pie', // 设置图表类型为饼图
+                                                    radius: '65%', // 饼图的半径，外半径为可视区尺寸（容器高宽中较小一项）的 55% 长度。
+                                                    data: [// 数据数组，name 为数据项名称，value 为数据项值
+                                                        {value: 4, name: '一班'},
+                                                        {value: 6, name: '二班'},
+                                                        {value: 8, name: '三班'},
+                                                        {value: 27, name: '四班'},
+                                                        {value: 55, name: '五班'}
+                                                    ],
+                                                    itemStyle: {
+                                                        normal: {
+                                                            color: function (params) {
+                                                                //自定义颜色
+                                                                var colorList = [
+                                                                    '#020241', '#130d58', '#313879', '#4790de', '#5bb4de', '#67f4f7',
+                                                                ];
+                                                                return colorList[params.dataIndex]
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        })
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h4>设备性能（%）</h4>
+                                <div class="chart_ring" style="width: 100%;height:315px">
+                                    <div id="ring" style="width: 100%;height:315px"></div>
+                                    <script type="text/javascript">
+                                        var myChart4 = echarts.init(document.getElementById('ring'));
+                                        // 基于准备好的dom，初始化echarts实例 
+                                        // 指定图表的配置项和数据
+                                        var option = {
+                                            legend: {
+                                                // orient 设置布局方式，默认水平布局，可选值：'horizontal'（水平） ¦ 'vertical'（垂直）
+                                                orient: 'vertical',
+                                                // x 设置水平安放位置，默认全图居中，可选值：'center' ¦ 'left' ¦ 'right' ¦ {number}（x坐标，单位px）
+                                                x: 'left',
+                                                // y 设置垂直安放位置，默认全图顶端，可选值：'top' ¦ 'bottom' ¦ 'center' ¦ {number}（y坐标，单位px）
+                                                y: 'center',
+                                                itemWidth: 24, // 设置图例图形的宽
+                                                itemHeight: 18, // 设置图例图形的高
+                                                textStyle: {
+                                                    color: '#000'  // 图例文字颜色
+                                                },
+                                                // itemGap设置各个item之间的间隔，单位px，默认为10，横向布局时为水平间隔，纵向布局时为纵向间隔
+                                                itemGap: 10,
+                                                backgroundColor: '#fff', // 设置整个图例区域背景颜色
+                                                data: ['故障率', '良好率', '优质率']
+                                            },
+                                            tooltip: {
+                                                trigger: 'item',
+                                                formatter: "{a} <br/>{b} : {c} ({d}%)"
+                                            },
+                                            color: ['#fcee21', '#29abe2', '#00ffff', '#0071bc'],
+                                            series: [{
+                                                    name: '访问来源',
+                                                    type: 'pie',
+                                                    radius: ['30%', '65%'], // 半径
+                                                    center: ['50%', '50%'], // 位置
+                                                    label: {
+                                                        normal: {
+                                                            formatter: '{b}\n  {c}',
+                                                        },
+                                                    },
+                                                    data: [{value: 8, name: '故障率'},
+                                                        {value: 33, name: '良好率'},
+                                                        {value: 60, name: '优质率'},
+                                                    ],
+                                                    itemStyle: {
+                                                        emphasis: {
+                                                            shadowBlur: 10,
+                                                            shadowOffsetX: 0,
+                                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                                        }
+                                                    }
+                                                }]
+                                        };
+                                        // 使用刚指定的配置项和数据显示图表。
+                                        myChart4.setOption(option);
+                                    </script>
+
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h4>在位人数（人）</h4>
+                                <div class="chart_zhuzhuangtu" style="width: 100%;height:315px">
+                                    <div id="pie3" style="width: 100%;height:315px"></div>
+                                    <script type="text/javascript">
+                                        var myChart5 = echarts.init(document.getElementById('pie3'));
+
+                                        var
+                                                option = {
+                                                    // title: {
+                                                    // 	/*text: '世界人口总量',*/
+                                                    // 	subtext: '单位：%'
+                                                    // },
+                                                    legend: {
+                                                        top: 5, // 统计图两个方块到Title的距离
+                                                        left: 'center',
+                                                        data: ['一号班台', '二号班台', '三号班台']
+                                                    },
+                                                    tooltip: {
+                                                        trigger: 'axis',
+                                                        axisPointer: {// 坐标轴指示器，坐标轴触发有效
+                                                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                                        }
+                                                    },
+                                                    grid: {
+                                                        left: '3%',
+                                                        right: '4%',
+                                                        bottom: '3%',
+                                                        containLabel: true
+                                                    },
+                                                    barWidth: '70%',
+                                                    xAxis: {
+                                                        type: 'value',
+                                                        splitLine: {show: false},
+                                                        axisLabel: {
+                                                            show: false,
+                                                            textStyle: {color: '#000000'}//字体颜色
+                                                        },
+                                                        axisLine: {
+                                                            // show: false,
+                                                            lineStyle: {
+                                                                type: 'solid',
+                                                                color: '#000000', //下边线的颜色
+                                                                width: '1'//坐标线的宽度
+                                                            }
+                                                        },
+                                                        splitLine: {
+                                                            show: true, //垂直线
+                                                            lineStyle: {
+                                                                color: '#aaaaaa'
+                                                            }
+                                                        }
+                                                    },
+                                                    yAxis: {
+                                                        type: 'category',
+                                                        axisTick: {show: true}, //尺寸边线
+                                                        splitLine: {show: false},
+                                                        data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', ],
+                                                        axisLabel: {
+                                                            textStyle: {color: '#000000'}//字体颜色
+                                                        },
+                                                        axisLine: {
+                                                            lineStyle: {
+                                                                type: 'solid',
+                                                                color: '#000000', //下边线的颜色
+                                                                width: '1'//坐标线的宽度
+                                                            }
+                                                        },
+                                                    },
+                                                    series: [
+                                                        {
+                                                            type: 'bar',
+                                                            color: '#ffdb5c',
+                                                            name: '一号班台',
+                                                            stack: true, //堆叠默认、叠加。没有是叠加
+                                                            z: 11,
+                                                            //barGap: '-100%',//叠加重叠使用
+                                                            data: [520, 412, 350, 380, 320, 430, 550, 310, 250, ],
+                                                            itemStyle: {
+                                                                normal: {
+                                                                    label: {
+                                                                        show: true, //开启显示
+                                                                        position: 'insideRight', //在上方显示
+                                                                        textStyle: {//数值样式
+                                                                            color: '#FFFFFF',
+                                                                            fontSize: 13,
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                        },
+                                                        {
+                                                            type: 'bar',
+                                                            color: '#37a2da',
+                                                            name: '二号班台',
+                                                            stack: true, //堆叠默认、叠加。没有是叠加
+                                                            z: 10,
+                                                            data: [220, 420, 101, 134, 90, 230, 210, 190, 280],
+                                                            itemStyle: {
+                                                                normal: {
+                                                                    label: {
+                                                                        show: true, //开启显示
+                                                                        position: 'insideRight', //在上方显示
+                                                                        textStyle: {//数值样式
+                                                                            color: '#FFFFFF',
+                                                                            fontSize: 13,
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                        },
+                                                        //设置不显示
+                                                        {
+                                                            type: 'bar',
+                                                            color: '#67e0e3',
+                                                            name: '三号班台',
+                                                            stack: true, //堆叠默认、叠加。没有是叠加
+                                                            z: 9,
+                                                            //设置不显示
+                                                            //			                symbolSize: 0, // symbol的大小设置为0
+                                                            //			                lineStyle: {
+                                                            //			                    width: 0, // 线宽是0
+                                                            //			                    color: 'rgba(0, 0, 0, 0)' // 线的颜色是透明的
+                                                            //			                },
+                                                            data: [120, 280, 191, 234, 290, 330, 350, 120, 260],
+                                                            itemStyle: {
+                                                                normal: {
+                                                                    label: {
+                                                                        show: true, //开启显示
+                                                                        position: 'insideRight', //在上方显示
+                                                                        textStyle: {//数值样式
+                                                                            color: '#FFFFFF',
+                                                                            fontSize: 13,
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                        }
+                                                    ]
+                                                };
+
+
+                                        myChart5.setOption(option);
+
+                                    </script>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- page end-->
+                </section>
+            </section>
+        </section>
+        
+    </body>
+
+</html>

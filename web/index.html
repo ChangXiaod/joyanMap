@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
+        <title>十四运安保平台</title>
+        <link href="img/favicon.ico" rel="icon">
+        <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="lib/myjs.js" type="text/javascript"></script>
+        <style type="text/css">
+            *{
+                padding: 0px;
+                margin: 0px;
+            }
+            body{
+                /* border: 1px solid red ; */
+            }
+            #mainStructure{
+                position:fixed;
+                top: 0;
+                left: 0;
+                width:100%;
+                height:100%;
+                min-width: 1000px;
+                z-index:-10;
+                zoom: 1;
+                background-color: #fff;
+                background: url(img/admin01/01-021.png) no-repeat;
+                background-size: 100%;
+                -webkit-background-size: cover;
+                -o-background-size: cover;
+                background-position: center center;
+            }
+            #middlePart{
+                height: 45.19%;
+                width:100%;
+                position: relative;
+                top: 16%;
+                zoom: 1;
+                /* background: url(img/admin01/1@2x.png) no-repeat; */
+                -webkit-background-size: cover;
+                -o-background-size: cover;
+                background-position: center 0;
+            }
+            #middlePart1{
+                height: 100%;
+                width: 30.6%;
+                float: left;
+                margin-top: -2%;
+                margin-left: -17%;
+                /* border: 1px solid red; */
+            }
+
+            #badge{
+                float: right;
+                margin-top: 13.5%;
+                margin-left: -20%;
+                height: 50%;
+                width: 35%;
+            }
+            #middlePart2{
+                float: left;
+                height: 100%;
+                width: 23.15%;
+                /* border: 1px solid gold; */
+            }
+            #part21{
+                float: left;
+                height: 100%;
+                width: 98%;
+                margin-top: -30%;
+                margin-left: 130%;
+                /* border: 1px solid gold; */
+            }
+            #word1{
+                margin-top: 51%;
+                margin-left: -10%;
+                width: 100%;
+                height: 18%;
+
+                font-size: 280%;
+                font-family: PingFang SC;
+                font-weight: 400;
+                color: #FFFFFF;
+
+                background: linear-gradient(0deg, #FFFFFF 0%, #FFFFFF 0%, #4AB0FA 0%, #005DFF 99.6337890625%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            #rect1{
+                margin-top: 5%;
+                margin-left: 22%;
+                height: 2px;
+                width: 65%;
+                background: #D1D1D1;
+                box-shadow: 0px 1px 1px 0px #FFFFFF;
+            }
+            #word1 img{
+                float: left;
+                left: -25%;
+                top: -25%;
+            }
+            #word2{
+                margin-top: 5%;
+                margin-left: 28%;
+                width: 70%;
+                height: 15%;
+
+                font-size: 120%;
+                font-family: PingFang SC;
+                font-weight: 500;
+                color: #666666;
+                line-height: 1.6;
+
+            }
+            #part22{
+                margin-top: 14.8%;
+                float: right;
+                height: 72%;
+                width: 1px;
+                background: linear-gradient(0deg, #FFFFFF, #0164A7, #FFFFFF, #CDCBCC, #FFFFFF);
+
+            }
+            #middlePart3{
+                position: absolute;
+                top:22%;
+                right: 20%;
+                width: 400px;
+                height: 250px;
+                display: flex;
+                flex-direction: column;
+                justify-content:space-around;
+                align-items: center;
+            }
+            #middlePart3 input{
+                width: 400px;
+                height: 42px;
+            }
+            #middlePart3 button{
+                border: none;
+                border-radius: 20px; 
+                background-color: #FE7200; 
+                color: #FFFFFF;
+                width: 400px;
+                height: 42px;
+            }
+            #middlePart3 img{
+                height: 42px;
+                width: 150px;
+            }
+            #middlePart3 .btn-login{
+                background-color: rgb(112, 166, 248);
+            }
+            #middlePart4{
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="middlePart1">
+            <img id="badge" src="img/admin01/01-03.png"/>
+        </div>
+        
+        <div id="mainStructure">
+            <div id="middlePart">
+
+                <!-- 中间白条靠左部分 一张图片-->
+                <!-- <div id="middlePart1">
+                    <img id="badge" src="img/admin01/01-03.png"/>
+                </div> -->
+
+                <!-- 中间白条中间部分 -->
+                <div id="middlePart2">
+                    <!-- 中间白条中间部分又分为左侧文字部分和右侧矩形框部分 -->
+                    <div id="part21"> <!-- 左侧文字部分 -->
+                        <p id="word1">
+                            <img src="img/admin01/01-04.png"/> 
+                        </p>
+                        <!-- <div id="rect1"></div> -->
+                        <p id="word2">加强警力部署，做好统筹协调，</br>
+                            利用科学技术，确保万无一失。</p>
+                    </div>
+                    <!-- 右侧矩形框部分 -->
+                    <!-- <div id="part22"></div> -->
+                </div>
+
+                <!-- 中间白条靠右部分  就是4个小块-->
+
+                <div id="middlePart3">
+                    <input name="account" type="text" id="account" class="form-control" placeholder="请输入用户名">
+                    <input  name="password" type="password" id="password" class="form-control" placeholder="请输入密码">
+                    <div id="middlePart4"> <!-- 第三个小块，包含了3个小块-->
+                        <input  name="checkCode" type="text" id="checkCode" class="form-control" style="width: 250px" placeholder="请输入验证码">
+                        <img src="VerifyCode" id="verifyCode" onclick="verify()">
+                    </div>
+                    <span id="tips" style="color:red; float: left; margin-left: 13%; margin-top: 0px;"></span>
+                    <button type="button" id="btn_dl" class="btn btn-warning btn-login" onclick="message_OnSubmit()">登录</button>
+                </div>
+
+            </div>
+        </div>
+        <script type="text/javascript">
+            var scanning = true;
+            $(function () {
+                //获取localStorage中存储的用户名和密码
+                var strAccount = localStorage.getItem('account');
+                var strPassword = localStorage.getItem('password');
+
+                if (strAccount) {
+                    $('#account').val(strAccount);
+                }
+                if (strPassword) {
+                    $('#password').val(strPassword);
+                }
+            });
+
+            //在验证码输入框上绑定按钮事件
+            $('#checkCode').keydown(function (event) {
+                if (event.keyCode === 13) {
+                    message_OnSubmit();
+                }
+            });
+
+            //获取验证码
+            function verify() {
+                $('#verifyCode').attr('src', 'VerifyCode?random=' + Math.random());
+            }
+
+            /**
+             * 检查用户名、密码、验证码是否为空
+             */
+            function message_OnSubmit() {
+                var name = $("#account").val();
+                var pwd = $('#password').val();
+                var checkCode = $('#checkCode').val();
+//                alert('ban6 is '+ban6+'|ban3 is '+ban3);
+                if (checkspace(name)) {
+                    document.getElementById("account").focus();
+                    document.getElementById("tips").innerHTML = "";
+                    document.getElementById("tips").innerHTML = "用户名不能为空！";
+                    return false;
+                }
+                if (checkspace(pwd)) {
+                    document.getElementById("password").focus();
+                    document.getElementById("tips").innerHTML = "";
+                    document.getElementById("tips").innerHTML = "密码不能为空！";
+                    return false;
+                }
+                $("#btn_dl").text('登录中...');
+                $.post("LoginServlet", {verifyCode: checkCode, name: name, pwd: pwd},
+                        function (data) {
+                            console.dir(data);
+                            $("#btn_dl1").text('登      录');
+                            console.log('data.success is ' + data.success);
+                            if (data.success) {
+                                if ($('#remember').is('checked')) {
+                                    localStorage.setItem("account", data.account);
+                                    localStorage.setItem("password", data.password);
+                                } else {
+                                    localStorage.removeItem('account');
+                                    localStorage.removeItem('password');
+                                }
+                                window.location.replace("main.html");
+                            } else {
+                                $("#tips").text(data.msg);
+                                return;
+                            }
+                        }, "json");
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>首页展示</title>
+
+        <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!--external css-->
+        <link href="lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/style-responsive.css" rel="stylesheet">
+        <link rel="stylesheet" href="lib/bootstrap/css/bootstrap-table.css">
+        <link href="lib/bootstrap/css/jquery-confirm.min.css" rel="stylesheet" type="text/css"/>
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap-table.js" type="text/javascript"></script>
+        <script src="lib/bootstrap/js/bootstrap-table-zh-CN.js"></script>
+        <script src="lib/bootstrap/js/jquery-confirm.min.js" type="text/javascript"></script>
+        <script src="lib/myjs.js" type="text/javascript"></script>
+
+
+
+        <!-- <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/style-responsive.css" rel="stylesheet">
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap.min.js"></script> -->
+        <style>
+            .newColor{color: rgb(31, 31, 245);}
+            .pull-left, .pagination-detail{
+                display: none;
+            }
+            .pagination li a{
+                background-color: #f7fbff;
+            }
+            .table>thead>tr>th,.table>tbody>tr>td,.table {
+                border: 0 !important;
+            }
+        </style>
+    </head>
+
+    <body>
+        <section id="container">
+            <!-- ****************************************************************************
+                MAIN CONTENT
+                ***************************************************************************** -->
+            <section id="main-content">
+                <section class="wrapper">
+                    <div class="row">
+                        <div class="col-lg-4 main-chart">   
+                            <div class="col-md-12 col-sm-12 mb mt">
+                                <!-- class="col-md-12 col-sm-12 mb mt" -->
+                                <div class="grey-panel pm donut-chart">                                
+                                    <div class="grey-header"> 
+                                        <h5>重要通知</h5>
+                                    </div>
+                                    <div style="height: 45%;">
+                                        <div id = 'div_tab'>				
+                                            <table id="data_list" class="table">
+                                            </table>
+                                        </div>
+                                       
+                                    </div>
+
+                                    <div class="grey-panel">
+                                        <div class="grey-header">
+                                            <h3 class="panel-title">
+                                                通知详情
+                                            </h3>
+                                        </div>
+                                        <div class="panel-body art-content" style="line-height: 1.5em;">
+                                            2020年10月24日全军需要参加军队大演练，请各军官安排好相关事宜！2020年10月24日全军需要参加军队大演练，请各军官安排好相关事宜！
+                                            2020年10月24日全军需要参加军队大演练，请各军官安排好相关事宜！
+                                            文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息
+                                            文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息
+                                            文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息
+                                            文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息文字信息
+                                        </div>
+                                    </div>
+                                    <!-- <canvas id="serverstatus01" height="120" width="120"></canvas> -->
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="col-lg-8 main-chart">         
+                            <div class="row mt">
+                                <div class="col-md-6 col-sm-6 mb">
+                                    <div class="grey-panel pn donut-chart">
+                                        <div class="grey-header">
+                                            <h5>安保任务</h5>    
+                                        </div>
+                                        <div>
+                                            <h5 class="inform">任务标题：西安交通管理</h5>    
+                                        </div>
+                                        <div>
+                                            <h5 class="inform">总指挥：乔峰</h5>    
+                                        </div>
+                                        <div>
+                                            警力部署
+                                        </div>
+                                        <div>
+                                            时间
+                                        </div>
+                                        <div>
+                                            地点
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-sm-6 mb">
+                                    <div class="grey-panel pn donut-chart">
+                                        <div class="grey-header">
+                                            <h5>安保任务</h5>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt">
+                                <div class="col-md-6 col-sm-6 mb">
+                                    <div class="grey-panel pn donut-chart">
+                                        <div class="grey-header">
+                                            <h5>安保任务</h5>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-6 mb">
+                                    <div class="grey-panel pn donut-chart">
+                                        <div class="grey-header">
+                                            <h5>安保任务</h5>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>  
+        </section>
+    </body>
+
+    <script type="text/javascript">
+
+            var editId;
+            //操作的类型：1为新增， 2为编辑
+            var operation = 1;
+            $(function () {
+                //设置表格区域的高度及宽度
+                document.getElementById("div_tab").style.height = (screen.availHeight * 0.7 - 15) + 'px';
+                //创建表
+                initTable();
+            });
+            $('#key').keydown(function (event) {
+                if (event.keyCode === 13) {
+                    searchByKey();
+                }
+            });
+            //根据关键字查询
+            function searchByKey() {
+                $('#data_list').bootstrapTable('removeAll');
+                $('#data_list').bootstrapTable("refresh");
+            }
+
+            //初始化表格
+            function initTable() { 
+                $('#data_list').bootstrapTable('removeAll');
+                $('#data_list').bootstrapTable({
+                    locale: 'zh-CN',
+                    pagination: true, //分页功能
+                    pageNumber: 1, //初始页面
+                    pageSize: 4, //每页行数
+                    pageList: [4, 50, 100],
+                    smartDisplay: true,
+                    clickToSelect: true, //是否启用点击选中行
+                    sidePagination: "server", //后台分页
+                    method: 'get',
+                    url: 'QueryDataServlet',
+                    dataField: 'data',
+                    queryParams: queryParams, //传给后台的查询参数
+                    responseHandler: responseHandler, //查询成功后执行方法
+                    columns: [
+                        // {
+                        //     title: '序号', //标题  可不加 
+                        //     align:'center', 
+                        //     formatter: function (value, row, index) {
+                        //         return index + 1;
+                        //     }
+                        // }, 
+                        {   
+                            title: '通知标题',
+                            field: 'art_title',
+                        },
+                    ]
+                });
+            }
+
+            //请求成功方法
+            function responseHandler(mdata) {
+                var errcode = mdata.code;//在此做了错误代码的判断
+                //alert(JSON.stringify(mdata));
+                if (errcode != 0) {
+                    $.alert({
+                        title: '告警',
+                        content: "对不起，获取数据失败！",
+                    });
+                    return;
+                }
+                //缓存数据
+                sessionStorage.useritems = JSON.stringify(mdata.result.data);
+                //如果没有错误则返回数据，渲染表格
+                return {
+                    total: mdata.result.total, //总页数,前面的key必须为"total"
+                    data: mdata.result.data //行数据，前面的key要与之前设置的dataField的值一致.
+                };
+            }
+
+            //生成表格中按钮
+            function operateFormatter(value, row, index) {
+                return ["<a href='javascript:edit(" + row.id + ")'  title='编辑'><i class='icon-edit moveicon-left' style='color: #01bbd4'>编辑</i></a>\n\
+                         <a href='javascript:del(" + row.id + ")' title='删除'><i class='icon-remove moveicon-middle' style='color: #01bbd4'>删除</i></a>"].join('');
+            }
+
+            //请求服务数据时所传参数
+            function queryParams(params) {
+                //获取查询关键字
+                // var key = document.getElementById("key").value;
+
+                //返回查询参数
+                return{
+                    //每页多少条数据
+                    rows: params.limit,
+                    //请求第几页
+                    page: params.pageNumber,
+                    sid: "get_news",
+                    // order: "update_time",
+                    desc: "false",
+                    // key: key
+                }
+            }
+
+            //点击获取重要通知的内容
+            $(function(){
+                var otr = $('#data_list tbody tr');
+                for(var i=0;i<otr.length;i++){
+                    otr[i].click = function(){
+                        var index = otr[i].attr('data-index');
+                        var data = sessionStorage.getItem('useritems');
+                        var newsdata = JSON.parse(data);
+                        newsdata.result.data 
+                    }
+                }
+                otr.click = function(){
+                    
+                }
+            })
+            
+            //将班台数据添加到数据库表中
+            function add_news() {
+                var params = {};
+                params.sid = 'add_news';
+                var item = getInputs();
+                //提交数据到数据库
+                if (item != null && item != undefined) {
+                    params.data = JSON.stringify(item);
+                    $.post('AddDataServlet', params, function (mdata) {
+                        //解析服务器端传回的json格式字符串
+                        var data = JSON.parse(mdata);
+                        if (data.code == 0) {
+                            $.alert({
+                                title: '提示!',
+                                content: "恭喜您，添加数据成功！",
+                            });
+                            $('#data_list').bootstrapTable("refresh");
+                        } else {
+                            $.alert({
+                                title: '提示!',
+                                content: data.info,
+                            });
+                        }
+                    });
+                }
+            }
+
+    </script>
+</html>

@@ -1,0 +1,2937 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="media/css/ol.css" rel="stylesheet" type="text/css"/>
+        <!--<link href="media/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>-->
+        <!--<link href="media/css/style.css" rel="stylesheet" type="text/css"/>-->
+        <link href="media/css/jquery-confirm.min.css" rel="stylesheet" type="text/css"/>
+        <link href="media/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <script src="media/js/jquery-1.10.1.min.js" type="text/javascript"></script>
+        <script src="media/js/bootstrap.min.js" type="text/javascript"></script>
+        <!--<link rel="stylesheet" href="media/css/bootstrap-select.css">-->
+        <!--<script src="media/js/bootstrap-select.js"></script>-->
+        <!--        <link href="media/css/style-metro.css" rel="stylesheet" type="text/css"/>-->
+        <script src="media/js/jquery-confirm.min.js" type="text/javascript"></script>
+        <!--<script src="media/js/ol.js" type="text/javascript"></script>-->
+        <script src="laydate/laydate.js" type="text/javascript"></script>
+        <script src="media/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="media/js/ol-debug.js" type="text/javascript"></script>
+        <script src="media/js/gps.js" type="text/javascript"></script>	
+        <script src="media/js/index_1.js" type="text/javascript"></script>
+        <link href="media/css/reset.min.css" rel="stylesheet" type="text/css"/>
+        <link href="media/css/style_1.css" rel="stylesheet" type="text/css"/>
+
+        <style>
+            html,body,#map{
+                height: 100%;
+                width: 100%;
+                padding: 0px;
+                margin: 0px;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map" class="map" style="background: #66B2FF;">
+        </div>
+        <div id="scalebar"></div>
+        <div id="popup" class="ol-popup">
+            <div class="popup-top">
+                <span class="popup-title">当前标记信息</span>
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+            </div>
+            <div class="popup-content" id="tabinfo">
+
+                <ul id="popup-content">
+
+                </ul>
+            </div>
+        </div>
+        <div id="marker"></div>
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="loading_modal" tabindex="999" role="dialog" aria-labelledby="myModalLabel"  style="width:30%; height: auto; margin-right: 30%;display: none;">
+            <!--<div class="modal-dialog">-->
+            <div class="modal-content" style="background:black;width:100%; height: 20%;">
+                <img src="images/loading.gif" style="width:100%;" />
+            </div>
+        </div>
+        <script>
+            //地图定义
+            var map = null;
+            //文字标注图层
+            var text_layer = null;
+            var text_source = null;
+            //船只图层
+            var boat_source = null;
+            var boat_layer = null;
+            //风电机组图层
+            var machine_source = null;
+            var machine_layer = null;
+            //风电厂图层
+            var wf_source = null;
+            var wf_layer = null;
+            // var weatherType = "1";
+            //升压站图层
+            var station_source = null;
+            var station_layer = null;
+            //人员图层
+            var person_source = null;
+            var person_layer = null;
+            var wmstate = [];
+            var isHide = true;
+            var isHide1 = true;
+            var isHide2 = true;
+            //文字缩放比例
+            var TEXT_SCALE = 0.15;
+            //图标缩放比例
+            var IMG_SCALE = 0.083;
+            //右键点击位置
+            var coordinate;
+            //右键菜单定义
+            var menu_overlay = null;
+            //右键添加标注类型
+            var nowfeature;
+            var types = -1;
+            var addtype = 0;
+            var shipcollection = [];
+            var earea = [];
+            var shipalarmrecord = [];
+//            var routeCoords1 = []; //电子围栏顶点集合
+            var timeCoords = [];
+            var timeCoords0 = [];
+            var timeCoords1 = [];
+            var timeCoords2 = [];
+            var wmstaffs = [];
+            var eareasource; //电子围栏图层
+            var eareavector; //电子围栏
+            var source35; //35kv海缆图层
+            var vector35; //34kv海缆
+            var source110; //110kv海缆图层
+            var vector110; //110kv海缆
+            var shipNo; //船舶编号
+            var content; //标记内容
+            var overlay; //标记图层
+            var routeLength; //轨迹一段长度
+            var routeLength1;
+            var vectorLayer = null; //轨迹回放图层
+            var vectorLayers = [];
+            var animating = false;
+            var count = 0;
+            var startx = "";
+            var starty = "";
+            var endx = "";
+            var endy = "";
+            var avg_x = "";
+            var avg_y = "";
+            var val_x = "";
+            var val_y = "";
+            var da = "";
+            var geoMarker;
+            var styles;
+            var animating1 = false;
+            var count1 = 0;
+            var startx1 = "";
+            var starty1 = "";
+            var endx1 = "";
+            var endy1 = "";
+            var avg_x1 = "";
+            var avg_y1 = "";
+            var val_x1 = "";
+            var val_y1 = "";
+            var da1 = "";
+            var geoMarker1;
+            var styles3;
+            var styles1;
+            var styles2;
+            var routeCoords = [];//增加平滑数据后的定点轨迹
+            var routeCoords0 = [];//历史轨迹定点集合
+            var routeCoords1 = [];//电子围栏顶点集合
+            var iname;
+            var shipTon;
+            var shipLong;
+            var shipWide;
+            var sraft;
+            var longitude;
+            var latitude;
+            var speed = 0, now = 0;//轨迹回放速度和当前时间 
+            var lastTime;
+            var isSelfShip;
+            var rotation;
+            var machineSetID;
+            var machineSet;
+            var machineSetName;
+            var state;
+            var stateName;
+            var power;
+            var windSpeed;
+            var alarm = "无";
+            var colors = ['white', 'blue'];
+            var n = 0; // global
+            var isInterval = false;
+            //加载完成后执行
+            $(function () {
+                //初始化地图
+                initMaps();
+                loadwmstate();
+                showEarea();
+                //显示风机信息
+                loadWfinfo();
+                //解析url传参
+                var shipNo = getParamValue('shipNo');
+                var startTime = getParamValue('startTime');
+                var endTime = getParamValue('endTime');
+                //判断船号是否为空
+                if (shipNo == null) {
+                    $.alert({
+                        title: '提示',
+                        content: '对不起，船号不能为空！'
+                    });
+                    return;
+                }
+                //判断开始时间是否为空
+                if (startTime == null) {
+                    $.alert({
+                        title: '提示',
+                        content: '对不起，开始时间不能为空！'
+                    });
+                    return;
+                }
+                //判断结束时间是否为空
+                if (endTime == null) {
+                    $.alert({
+                        title: '提示',
+                        content: '对不起，结束时间不能为空！'
+                    });
+                    return;
+                }
+                //查询轨迹并显示在地图页面
+                routereplay(shipNo, startTime, endTime);
+            });
+
+            //轨迹长度
+            var DISTANCE = 0;
+            //添加机组
+            function addmachine() {
+                $('#machineName').val('');
+                $('#myModal1').modal('show');
+            }
+            //添加升压站
+            function addstation(stationName, lon, lat, num) {
+                //获取当前地图的缩放比例
+                var zoom = map.getView().getZoom();
+                var scale = zoom * TEXT_SCALE * 0.1;
+                //创建标记点
+                var point = new ol.geom.Point(ol.proj.fromLonLat([lon, lat]));
+                //创建特征
+                var pointFeature = new ol.Feature({geometry: point, name: stationName, class: 'station'});
+                if (num == 0) {
+                    pointFeature.setStyle(
+                            new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    anchor: [0.5, 1],
+                                    scale: scale * 5,
+                                    offsetX: 0,
+                                    offsetY: 5,
+                                    src: 'images/SY.png'
+                                }),
+                                text: new ol.style.Text({
+                                    text: pointFeature.get('name'),
+                                    scale: scale,
+                                    offsetX: 0,
+                                    offsetY: 15,
+                                    fill: new ol.style.Fill({
+                                        color: 'black'
+                                    }),
+                                    stroke: new ol.style.Stroke({
+                                        color: 'black',
+                                        width: 0.1
+                                    })
+                                })
+                            })
+                            );
+                } else if (num == 1) {
+                    pointFeature.setStyle(
+                            new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    anchor: [0.5, 1],
+                                    scale: scale * 5,
+                                    offsetX: 0,
+                                    offsetY: 5,
+                                    src: 'images/SY1.png'
+                                }),
+                                text: new ol.style.Text({
+                                    text: pointFeature.get('name'),
+                                    scale: scale,
+                                    offsetX: 0,
+                                    offsetY: 15,
+                                    fill: new ol.style.Fill({
+                                        color: 'black'
+                                    }),
+                                    stroke: new ol.style.Stroke({
+                                        color: 'black',
+                                        width: 0.1
+                                    })
+                                })
+                            })
+                            );
+                } else {
+                    pointFeature.setStyle(
+                            new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    anchor: [0.5, 1],
+                                    scale: scale * 5,
+                                    offsetX: 0,
+                                    offsetY: 5,
+                                    src: 'images/SY2.png'
+                                }),
+                                text: new ol.style.Text({
+                                    text: pointFeature.get('name'),
+                                    scale: scale,
+                                    offsetX: 0,
+                                    offsetY: 15,
+                                    fill: new ol.style.Fill({
+                                        color: 'black'
+                                    }),
+                                    stroke: new ol.style.Stroke({
+                                        color: 'black',
+                                        width: 0.1
+                                    })
+                                })
+                            })
+                            );
+                }
+                //将特征添加到船只元数据中
+                station_source.addFeature(pointFeature);
+            }
+            //添加文字标注
+            function addText(text, lon, lat) {
+                //获取当前地图的缩放比例
+                var zoom = map.getView().getZoom();
+                var scale = zoom * TEXT_SCALE;
+                //显示位置
+                var bd = gpsToBd(lon, lat);
+                var point = new ol.geom.Point(ol.proj.fromLonLat([bd.lon, bd.lat]));
+                var textFeature = new ol.Feature({
+                    geometry: point,
+                    name: text,
+                    class: 'text'
+                });
+                textFeature.setStyle(
+                        new ol.style.Style({
+                            text: new ol.style.Text({
+                                textAlign: "center",
+                                textBaseline: "middle",
+                                scale: scale * 0.1,
+                                text: textFeature.get('name'),
+                                fill: new ol.style.Fill({color: 'blue'}),
+                                stroke: new ol.style.Stroke({color: 'rgba(255,255,255,0)', width: 0.5}),
+                                offsetX: 10,
+                                offsetY: 0,
+                                rotation: 0
+                            })
+                        })
+                        );
+                //将文本文字添加到文本图层中
+                text_source.addFeature(textFeature);
+            }
+
+            //添加文字标注
+            function addText1(text, lon, lat) {
+                //获取当前地图的缩放比例
+                var zoom = map.getView().getZoom();
+                var scale = zoom * TEXT_SCALE;
+                //显示位置
+                var bd = gpsToBd(lon, lat);
+                var point = new ol.geom.Point(ol.proj.fromLonLat([bd.lon, bd.lat]));
+                var textFeature = new ol.Feature({
+                    geometry: point,
+                    name: text,
+                    class: 'text'
+                });
+                textFeature.setStyle(
+                        new ol.style.Style({
+                            text: new ol.style.Text({
+                                textAlign: "center",
+                                textBaseline: "middle",
+                                scale: scale * 0.05,
+                                text: textFeature.get('name'),
+                                fill: new ol.style.Fill({color: 'black'}),
+                                stroke: new ol.style.Stroke({color: 'rgba(255,255,255,0)', width: 0.2}),
+                                offsetX: 10,
+                                offsetY: 0,
+                                rotation: 0
+                            })
+                        })
+                        );
+                //将文本文字添加到文本图层中
+                text_source.addFeature(textFeature);
+            }
+            //添加船只图层
+            function addBoat(shipName, lon, lat, type, rotation) {
+                //获取当前地图的缩放比例
+                var zoom = map.getView().getZoom();
+                var scale = zoom * TEXT_SCALE * 0.3;
+                //创建标记点
+                var point = new ol.geom.Point(ol.proj.fromLonLat([lon, lat]));
+                //创建特征
+                var pointFeature = new ol.Feature({geometry: point, name: shipName, class: 'boat', rotation: rotation, type: type});
+                if (map.getView().getZoom() > 11) {
+                    if (type == 0) {
+                        pointFeature.setStyle(
+                                new ol.style.Style({
+                                    image: new ol.style.Icon({
+                                        anchor: [0.5, 0.5],
+//                                        anchor: [0.5, 1.5],
+                                        scale: map.getView().getZoom() * TEXT_SCALE * 0.6,
+                                        rotation: rotation,
+                                        src: 'images/002.png'
+                                    })
+                                })
+                                );
+                    } else if (type == 1) {
+                        pointFeature.setStyle(
+                                new ol.style.Style({
+                                    image: new ol.style.Icon({
+                                        anchor: [0.5, 0.5],
+//                                        anchor: [0.5, 1.5],
+                                        scale: map.getView().getZoom() * TEXT_SCALE * 0.6,
+                                        rotation: rotation,
+                                        src: 'images/0041.png'
+                                    })
+                                })
+                                );
+                    } else if (type == 3) {
+                        pointFeature.setStyle(
+                                new ol.style.Style({
+                                    image: new ol.style.Icon({
+                                        anchor: [0.5, 0.5],
+//                                        anchor: [0.5, 1.5],
+                                        scale: map.getView().getZoom() * TEXT_SCALE * 0.6,
+                                        rotation: rotation,
+                                        src: 'images/0042.png'
+                                    })
+                                })
+                                );
+                    }
+                } else {
+                    if (type == 0) {
+                        pointFeature.setStyle(
+                                new ol.style.Style({
+                                    image: new ol.style.Icon({
+                                        anchor: [0.5, 0.5],
+//                                        anchor: [0.5, 1.5],
+                                        scale: scale,
+                                        rotation: rotation,
+                                        src: 'images/ship.png'
+                                    })
+                                })
+                                );
+                    } else if (type == 1) {
+                        pointFeature.setStyle(
+                                new ol.style.Style({
+                                    image: new ol.style.Icon({
+                                        anchor: [0.5, 0.5],
+//                                        anchor: [0.5, 1.5],
+                                        scale: scale,
+                                        rotation: rotation,
+                                        src: 'images/ship2.png'
+                                    })
+                                })
+                                );
+                    } else if (type == 3) {
+                        pointFeature.setStyle(
+                                new ol.style.Style({
+                                    image: new ol.style.Icon({
+                                        anchor: [0.5, 0.5],
+//                                        anchor: [0.5, 1.5],
+                                        scale: scale,
+                                        rotation: rotation,
+                                        src: 'images/ship1.png'
+                                    })
+                                })
+                                );
+                    } else if (type == 4) {
+                        pointFeature.setStyle(
+                                new ol.style.Style({
+                                    image: new ol.style.Icon({
+                                        anchor: [0.5, 0.5],
+//                                        anchor: [0.5, 1.5],
+                                        scale: scale,
+                                        rotation: rotation,
+                                        src: 'images/003.png'
+                                    })
+                                })
+                                );
+                    }
+                }
+                //将特征添加到船只元数据中
+                boat_source.addFeature(pointFeature);
+            }
+
+            //添加风机图层
+            function addMachine(machineName, lon, lat, state, staff) {
+                //获取当前地图的缩放比例
+                var zoom = map.getView().getZoom();
+                var scale = zoom * TEXT_SCALE * 0.5;
+                //创建标记点
+                var point = new ol.geom.Point(ol.proj.fromLonLat([lon, lat]));
+                //创建特征
+                var pointFeature = new ol.Feature({geometry: point, name: machineName, class: 'machine', staff: staff, state: state, lon: lon, lat: lat});
+                if (map.getView().getZoom() <= 13) {
+                    if (staff == 0) {
+                        if (state == "2" || state == "3") {
+                            //console.dir(machineName);
+                            // clearGif(machineName);
+                            var imgParam = {src: "images/wf.gif", width: '43px', height: '48px'};
+                            addGifMark(map, machineName, {x: lon, y: lat}, imgParam, "marker", null);
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/13.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "5") {
+                            //console.dir(machineName);
+                            // clearGif(machineName);
+                            var imgParam01 = {src: "images/wf01.gif", width: '43px', height: '48px'};
+                            addGifMark(map, machineName, {x: lon, y: lat}, imgParam01, "marker", null);
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/13.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "" || state == null || state == "6" || state == 0 || state == "7" || state == "8") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/01.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "4" || state == "9" || state == "11" || state == "12" || state == "13") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/11.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "1") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/12.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "10") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/09.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        }
+                    } else if (staff == 1) {
+                        if (state == "2" || state == "3") {
+                            //clearGif(machineName);
+                            var imgParam1 = {src: "images/wf1.gif", width: '43px', height: '48px'};
+                            addGifMark(map, machineName, {x: lon, y: lat}, imgParam1, "marker", null);
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/13.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "5") {
+                            var imgParam02 = {src: "images/wf02.gif", width: '43px', height: '48px'};
+                            addGifMark(map, machineName, {x: lon, y: lat}, imgParam02, "marker", null);
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/13.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "" || state == null || state == "6" || state == 0 || state == "7" || state == "8") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/011.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "4" || state == "9" || state == "11" || state == "12" || state == "13") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/112.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "1") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/122.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "10") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/091.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        }
+                    } else if (staff == 2) {
+                        if (state == "2" || state == "3") {
+                            //clearGif(machineName);
+                            var imgParam2 = {src: "images/wf2.gif", width: '43px', height: '48px'};
+                            addGifMark(map, machineName, {x: lon, y: lat}, imgParam2, "marker", null);
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/13.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "5") {
+                            //console.dir(machineName);
+                            // clearGif(machineName);
+                            var imgParam03 = {src: "images/wf03.gif", width: '43px', height: '48px'};
+                            addGifMark(map, machineName, {x: lon, y: lat}, imgParam03, "marker", null);
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/13.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "" || state == null || state == "6" || state == 0 || state == "7" || state == "8") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/013.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "4" || state == "9" || state == "11" || state == "12" || state == "13") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/111.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "1") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/124.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        } else if (state == "10") {
+                            pointFeature.setStyle(
+                                    new ol.style.Style({
+                                        image: new ol.style.Icon({
+                                            anchor: [0.5, 1],
+                                            scale: scale,
+                                            src: 'images/092.png'
+                                        }),
+                                        text: new ol.style.Text({
+                                            text: pointFeature.get('name').replace("风机", ""),
+                                            scale: scale,
+                                            offsetX: 0,
+                                            offsetY: 5,
+                                            fill: new ol.style.Fill({
+                                                color: 'green'
+                                            }),
+                                            stroke: new ol.style.Stroke({
+                                                color: 'green',
+                                                width: 0.3
+                                            })
+                                        })
+                                    })
+                                    );
+                        }
+                    } else if (map.getView().getZoom() > 13) {
+                        if (staff == 0) {
+                            if (state == "2" || state == "3") {
+                                //console.dir(machineName);
+                                // clearGif(machineName);
+                                var imgParam = {src: "images/wf.gif", width: '96px', height: '96px'};
+                                addGifMark(map, machineName, {x: lon, y: lat}, imgParam, "marker", null);
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/13.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "5") {
+                                //console.dir(machineName);
+                                // clearGif(machineName);
+                                var imgParam01 = {src: "images/wf01.gif", width: '96px', height: '96px'};
+                                addGifMark(map, machineName, {x: lon, y: lat}, imgParam01, "marker", null);
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/13.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "" || state == null || state == "6" || state == 0 || state == "7" || state == "8") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/01big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "4" || state == "9" || state == "11" || state == "12" || state == "13") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/11big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "1") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/12big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "10") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/09big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            }
+                        } else if (staff == 1) {
+                            if (state == "2" || state == "3") {
+                                // clearGif(machineName);
+                                var imgParam1 = {src: "images/wf1.gif", width: '96px', height: '96px'};
+                                addGifMark(map, machineName, {x: lon, y: lat}, imgParam1, "marker", null);
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/13.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "5") {
+                                //console.dir(machineName);
+                                // clearGif(machineName);
+                                var imgParam02 = {src: "images/wf02.gif", width: '96px', height: '96px'};
+                                addGifMark(map, machineName, {x: lon, y: lat}, imgParam02, "marker", null);
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/13.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "" || state == null || state == "6" || state == 0 || state == "7" || state == "8") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/big1.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "4" || state == "9" || state == "11" || state == "12" || state == "13") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/112big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "1") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/122big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "10") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/091big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            }
+                        } else if (staff == 2) {
+                            if (state == "2" || state == "3") {
+                                //clearGif(machineName);
+                                var imgParam2 = {src: "images/wf2.gif", width: '96px', height: '96px'};
+                                addGifMark(map, machineName, {x: lon, y: lat}, imgParam2, "marker", null);
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/13.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "5") {
+                                //console.dir(machineName);
+                                // clearGif(machineName);
+                                var imgParam03 = {src: "images/wf03.gif", width: '96px', height: '96px'};
+                                addGifMark(map, machineName, {x: lon, y: lat}, imgParam03, "marker", null);
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/13.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "" || state == null || state == "6" || state == 0 || state == "7" || state == "8") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/013big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "4" || state == "9" || state == "11" || state == "12" || state == "13") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/111big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "1") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/124big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            } else if (state == "10") {
+                                pointFeature.setStyle(
+                                        new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 1],
+                                                scale: scale,
+                                                src: 'images/092big.png'
+                                            }),
+                                            text: new ol.style.Text({
+                                                text: pointFeature.get('name').replace("风机", ""),
+                                                scale: scale,
+                                                offsetX: 0,
+                                                offsetY: 5,
+                                                fill: new ol.style.Fill({
+                                                    color: 'green'
+                                                }),
+                                                stroke: new ol.style.Stroke({
+                                                    color: 'green',
+                                                    width: 0.3
+                                                })
+                                            })
+                                        })
+                                        );
+                            }
+                        }
+                    }
+                }
+
+                //将特征添加到船只元数据中
+                machine_source.addFeature(pointFeature);
+            }
+            //添加风厂图层
+            function addWf(wfName, lon, lat, power) {
+                //获取当前地图的缩放比例
+                var zoom = map.getView().getZoom();
+                var scale = zoom * TEXT_SCALE * 0.5;
+                //创建标记点
+                var point = new ol.geom.Point(ol.proj.fromLonLat([lon, lat]));
+                //创建特征
+                var pointFeature = new ol.Feature({geometry: point, name: wfName, class: 'windfield'});
+                pointFeature.setStyle(
+                        new ol.style.Style({
+                            image: new ol.style.Icon({
+                                anchor: [0.5, 1],
+                                scale: scale,
+                                src: 'images/121.png'
+                            }),
+                            text: new ol.style.Text({
+                                text: pointFeature.get('name'),
+                                //  + '\n 总功率：' + power + ' MW'
+                                scale: scale * 2,
+                                offsetX: 0,
+                                offsetY: 14,
+                                fill: new ol.style.Fill({
+                                    color: 'green'
+                                }),
+                                stroke: new ol.style.Stroke({
+                                    color: 'green',
+                                    width: 0.5
+                                })
+                            })
+                        })
+                        );
+                //将特征添加到船只元数据中
+                wf_source.addFeature(pointFeature);
+            }
+            //添加新增设备
+            function addWMinfo(WMname, lon, lat, type) {
+                //获取当前地图的缩放比例
+                var zoom = map.getView().getZoom();
+                var scale = zoom * TEXT_SCALE * 0.5;
+                //创建标记点
+                var point = new ol.geom.Point(ol.proj.fromLonLat([lon, lat]));
+                //创建特征
+                var pointFeature = new ol.Feature({geometry: point, name: WMname, class: 'wm'});
+                if (type == "0") {
+                    pointFeature.setStyle(
+                            new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    anchor: [0.5, 1],
+                                    scale: scale,
+                                    src: 'images/fanwhtj.png'
+                                }),
+                                text: new ol.style.Text({
+                                    text: pointFeature.get('name'),
+                                    scale: scale,
+                                    fill: new ol.style.Fill({
+                                        color: 'green',
+                                    }),
+                                    stroke: new ol.style.Stroke({
+                                        color: 'green',
+                                        width: 1
+                                    })
+                                }),
+                            })
+                            );
+                } else if (type == "1") {
+                    pointFeature.setStyle(
+                            new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    anchor: [0.5, 1],
+                                    scale: scale,
+                                    src: 'images/fanxgl.png'
+                                }),
+                                text: new ol.style.Text({
+                                    text: pointFeature.get('name'),
+                                    scale: scale,
+                                    fill: new ol.style.Fill({
+                                        color: 'green',
+                                    }),
+                                    stroke: new ol.style.Stroke({
+                                        color: 'green',
+                                        width: 1
+                                    })
+                                }),
+                            })
+                            );
+                } else if (type == "2") {
+                    pointFeature.setStyle(
+                            new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    anchor: [0.5, 1],
+                                    scale: scale,
+                                    src: 'images/fangray.png'
+                                }),
+                                text: new ol.style.Text({
+                                    text: pointFeature.get('name'),
+                                    scale: scale,
+                                    fill: new ol.style.Fill({
+                                        color: 'green',
+                                    }),
+                                    stroke: new ol.style.Stroke({
+                                        color: 'green',
+                                        width: 1
+                                    })
+                                }),
+                            })
+                            );
+                }
+                //将特征添加到船只元数据中
+                machine_source.addFeature(pointFeature);
+            }
+
+            //地图风格
+            var style = new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: 'whitesmoke',
+                    transparent: true
+                }),
+                stroke: new ol.style.Stroke({
+                    color: 'grey',
+                    width: 1
+                }),
+                text: ''
+            });
+
+            //加载机组位置及状态
+            function loadWminfo() {
+                machine_source.clear();
+                wmstaffs = [];
+                $.ajaxSetup({
+                    async: false
+                });
+                //远端接口名称
+                $.post("QueryStaffServlet", null, function (sdata) {
+                    var data = JSON.parse(sdata);
+                    if (data.code == 0) {
+                        //成功
+                        var item1 = data.result.data;
+                        //console.dir(item1);
+                        if (item1 != null && item1 != undefined) {
+                            wmstaffs = item1;
+                        }
+                    }
+                });
+                var params = {};
+                //远端接口名称
+                params.sid = 'get_wminfo';
+                $.post("QueryAllDataServlet", params, function (mdata) {
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        //成功
+                        var items = data.result.data;
+                        //console.dir(items);
+                        if (items != null && items != undefined) {
+                            var i = 0;
+                            for (; i < items.length; i++) {
+                                var item = items[i];
+                                var longitude = parseInt(item.longitude.replace(/\./g, "").substring(0, 9)) / 1000000;
+                                var latitude = parseInt(item.latitude.replace(/\./g, "").substring(0, 8)) / 1000000;
+                                //    console.dir(item.longitude.replace(/\./g, "").substring(0, 8));
+
+                                //成功
+                                var state = "null";
+                                for (var j = 0; j < wmstate.length; j++) {
+                                    if (item.machineSetID == wmstate[j].machineSetID) {
+                                        if (item.machineSetID == "158") {
+                                            // console.dir(wmstate[j].state);
+                                        }
+                                        if (wmstate[j].state == undefined) {
+
+                                        } else {
+                                            // alert(wmstate[j].state);
+                                            state = wmstate[j].state;
+                                        }
+                                    }
+                                }
+                                var count = 0;
+                                for (var x = 0; x < wmstaffs.length; x++) {
+                                    if (item.machineSet == wmstaffs[x].machCode) {
+                                        count++;
+                                    }
+                                }
+
+
+
+                                if (item.machineSet == "W762HSF Y Y003") {
+                                    if (count == 0) {
+                                        addstation("海上升压站（北区）", 121.32340, 32.68086, 0);
+                                    } else if (count == 1) {
+                                        addstation("海上升压站（北区）", 121.32340, 32.68086, 1);
+                                    } else {
+                                        addstation("海上升压站（北区）", 121.32340, 32.68086, 2);
+                                    }
+                                }
+                                if (item.machineSet == "W762HSF Y Y002") {
+                                    if (count == 0) {
+                                        addstation("海上升压站（南区）", 121.21130, 32.64252, 0);
+                                    } else if (count == 1) {
+                                        addstation("海上升压站（南区）", 121.21130, 32.64252, 1);
+                                    } else {
+                                        addstation("海上升压站（南区）", 121.21130, 32.64252, 2);
+                                    }
+                                }
+                                if (item.machineSet == "W762HSF Y A001") {
+                                    if (count == 0) {
+                                        addstation("陆上升压站", 121.051892, 32.5499122, 0);
+                                    } else if (count == 1) {
+                                        addstation("陆上升压站", 121.051892, 32.5499122, 1);
+                                    } else {
+                                        addstation("陆上升压站", 121.051892, 32.5499122, 2);
+                                    }
+                                }
+                                //console.dir(item + items1);
+                                //    console.dir(items1);
+                                if (count == 0) {
+                                    if (longitude !== 0) {
+                                        if (state == "null") {
+                                            //console.dir("111111"+item.machineSetName);
+                                            addMachine(item.machineSetName, longitude, latitude, 0, 0);
+                                        } else {
+                                            addMachine(item.machineSetName, longitude, latitude, state, 0);
+                                        }
+                                    }
+                                } else if (count == 1) {
+                                    if (state == "null") {
+                                        //console.dir(items1.state);
+                                        addMachine(item.machineSetName, longitude, latitude, 0, 1);
+                                    } else {
+                                        //console.dir(state);
+                                        addMachine(item.machineSetName, longitude, latitude, state, 1);
+                                    }
+                                } else {
+                                    if (state == "null") {
+                                        //console.dir(items1.state);
+                                        //console.dir("2222222"+item.machineSetName);
+                                        addMachine(item.machineSetName, longitude, latitude, 0, 2);
+                                    } else {
+                                        //console.dir(state);
+                                        // console.dir("2222222"+item.machineSetName);
+                                        addMachine(item.machineSetName, longitude, latitude, state, 2);
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                });
+                $.ajaxSetup({
+                    async: true
+                });
+            }
+            function loadwmstate() {
+                var param = {};
+                param.sid = "get_wmstate";
+                $.post("QueryAllDataServlet", param, function (sdata) {
+//                    alert(sdata);
+                    var datas = JSON.parse(sdata);
+                    if (datas.code == 0) {
+                        var items1 = datas.result.data;
+                        wmstate = items1;
+                    } else {
+                        $.alert({
+                            title: '警告',
+                            content: datas.info
+                        });
+                    }
+
+                });
+            }
+            //加载电厂位置及状态
+            function loadWfinfo() {
+                wf_source.clear();
+                var params = {};
+                //远端接口名称
+                params.sid = 'get_windfieldinfo';
+                $.post("QueryAllDataServlet", params, function (mdata) {
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        //成功
+                        var items = data.result.data;
+                        console.dir(items);
+                        if (items != null && items != undefined) {
+                            var i = 0;
+                            for (; i < items.length; i++) {
+                                var item = items[i];
+                                var longitude = parseInt(item.longitude.replace(/\./g, "").substring(0, 9)) / 1000000;
+                                var latitude = parseInt(item.latitude.replace(/\./g, "").substring(0, 8)) / 1000000;
+                                var power = item.totalPower;
+                                //    console.dir(item.longitude.replace(/\./g, "").substring(0, 8));
+                                if (longitude !== 0) {
+                                    addWf(item.worksname, longitude, latitude, power);
+                                }
+                            }
+
+                        }
+                    }
+                });
+            }
+            //加载人员信息
+            function loadStaffinfo() {
+                var params = {};
+                //远端接口名称
+                params.sid = 'get_stafflocation';
+                $.post("QueryDataServlet", params, function (mdata) {
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        //成功
+                        var items = data.result.data;
+                        console.dir(items);
+                        if (items != null && items != undefined) {
+                            var i = 0;
+                            for (; i < items.length; i++) {
+                                var item = items[i];
+                                var param = {};
+                                param.sid = "get_realshiplocation";
+                                param.condition = "shipNo='" + item.shipNo + "'";
+                                $.post("QueryDataServlet", param, function (sdata) {
+                                    var datas = JSON.parse(sdata);
+                                    if (datas.code == 0) {
+                                        //成功
+                                        var items1 = datas.result.data;
+                                        if (items1 != null && items1 != undefined) {
+                                            var item1 = items1[0];
+                                            var longitude = parseInt(item1.longitude.replace(/\./g, "").substring(0, 11)) / 1000000;
+                                            var latitude = parseInt(item1.latitude.replace(/\./g, "").substring(0, 10)) / 1000000;
+                                            console.dir(item1.latitude.replace(/\./g, "").substring(0, 10));
+                                            updateStaffState(item.name, longitude, latitude);
+                                            //addMachine(item.addname, 118.90173339843746, 29.231766241179272);
+                                        }
+                                    }
+                                });
+                            }
+
+                        }
+                    }
+                });
+            }
+            //加载气象信息
+            function loadWeatherinfo() {
+                var params = {};
+                //远端接口名称
+                params.sid = 'get_weatherinfo';
+                $.post("QueryDataServlet", params, function (mdata) {
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        //成功
+                        var items = data.result.data;
+                        console.dir(items);
+                        if (items != null && items != undefined) {
+                            var wname = " ";
+                            var item = items[0];
+                            //weatherType=item.weatherType;
+                            $('#weatherimg').remove();
+                            $('#patrolList').empty();
+                            if (item.weatherType == "1") {
+                                wname = "晴天";
+                                $('#wimg').append("<img id='weatherimg' src='images/tq10.png' alt='晴天' width='20' height='20' style='margin-left:40px;margin-top:6px'>");
+                            } else if (item.weatherType == "2") {
+                                wname = "少云";
+                                $('#wimg').append("<img id='weatherimg' src='images/tq4.png' alt='少云' width='20' height='20' style='margin-left:40px;margin-top:6px'>");
+                            } else if (item.weatherType == "3") {
+                                wname = "多云";
+                                $('#wimg').append("<img id='weatherimg' src='images/tq11.png' alt='多云' width='20' height='20' style='margin-left:40px;margin-top:6px'>");
+                            } else if (item.weatherType == "4") {
+                                wname = "阴天";
+                                $('#wimg').append("<img id='weatherimg' src='images/tq6.png' alt='阴天' width='20' height='20' style='margin-left:40px;margin-top:6px'>");
+                            } else if (item.weatherType == "5") {
+                                wname = "小雨";
+                                $('#wimg').append("<img id='weatherimg' src='images/tq13.png' alt='小雨' width='20' height='20' style='margin-left:40px;margin-top:6px'>");
+                            } else if (item.weatherType == "6") {
+                                wname = "中雨";
+                                $('#wimg').append("<img id='weatherimg' src='images/tq8.png' alt='中雨' width='20' height='20' style='margin-left:40px;margin-top:6px'>");
+                            } else if (item.weatherType == "7") {
+                                wname = "大雨";
+                                $('#wimg').append("<img id='weatherimg' src='images/tq14.png' alt='大雨' width='20' height='20' style='margin-left:40px;margin-top:6px'>");
+                            } else if (item.weatherType == "8") {
+                                wname = "暴雨";
+                                $('#wimg').append("<img id='weatherimg' src='images/tq12.png.png' alt='暴雨' width='20' height='20' style='margin-left:40px;margin-top:6px'>");
+                            }
+                            $('#patrolList').append("<li>记录时间： " + item.recordTime + "</li><br><li>风速： " + item.windSpeed + "米/秒</li><br><li>浪高： " + item.waveHeight + "米</li><br><li>潮高： " + item.tidalHeight + "厘米</li><br><li>气温： " + item.airTemperature + "℃</li><br><li>天气类型： " + item.weatherType + "</li><br><li>天气类型描述： " + wname + "</li>");
+                        }
+                    }
+                });
+            }
+            function showsource35() {
+                var routeCoord1 = [];
+                var routeCoord2 = [];
+                var routeCoord3 = [];
+                var routeCoord4 = [];
+                var routeCoord5 = [];
+                var routeCoord6 = [];
+                var routeCoord7 = [];
+                var routeCoord8 = [];
+                var routeCoord9 = [];
+                var routeCoord10 = [];
+                var routeCoord11 = [];
+                var routeCoord12 = [];
+                var routeCoord13 = [];
+                var routeCoord14 = [];
+                var routeCoord15 = [];
+                var routeCoord16 = [];
+                var routeCoord17 = [];
+                var routeCoord18 = [];
+                var routeCoord19 = [];
+                var routeCoord20 = [];
+                var routeCoord21 = [];
+                var routeCoord22 = [];
+                var routeCoord23 = [];
+                var routeCoord24 = [];
+                var routeCoord25 = [];
+                var routeCoord26 = [];
+                var routeCoord27 = [];
+                var routeCoord28 = [];
+                var routeCoord29 = [];
+                var routeCoord30 = [];
+                routeCoord1.push(ol.proj.fromLonLat([121.1648477777777800, 32.6291908333333300]));
+                routeCoord1.push(ol.proj.fromLonLat([121.1714758333333300, 32.6279311111111100]));
+                routeCoord1.push(ol.proj.fromLonLat([121.1783019444444400, 32.6267236111111100]));
+                addText1("311集电线", 121.1687019444444400, 32.6297236111111100);
+                routeCoord1.push(ol.proj.fromLonLat([121.1882091666666700, 32.6408308333333300]));
+                routeCoord1.push(ol.proj.fromLonLat([121.1967566666666700, 32.6407358333333300]));
+                routeCoord1.push(ol.proj.fromLonLat([121.205617500, 32.6406647222222200]));
+                routeCoord2.push(ol.proj.fromLonLat([121.185482500, 32.6253544444444500]));
+                routeCoord2.push(ol.proj.fromLonLat([121.1927822222222200, 32.62404916666666600]));
+                addText1("323集电线", 121.180482500, 32.61704916666666600);
+                routeCoord2.push(ol.proj.fromLonLat([121.1999233333333300, 32.622677500]));
+                routeCoord2.push(ol.proj.fromLonLat([121.2064258333333300, 32.6214497222222200]));
+                routeCoord2.push(ol.proj.fromLonLat([121.2133047222222200, 32.6201905555555500]));
+                routeCoord2.push(ol.proj.fromLonLat([121.220252500, 32.6189333333333300]));
+                routeCoord3.push(ol.proj.fromLonLat([121.2266116666666700, 32.6215736111111100]));
+                routeCoord3.push(ol.proj.fromLonLat([121.2328133333333400, 32.62364833333333500]));
+                addText1("313集电线", 121.2218133333333400, 32.62764833333333500);
+                routeCoord3.push(ol.proj.fromLonLat([121.2389544444444500, 32.62603944444444400]));
+                routeCoord3.push(ol.proj.fromLonLat([121.2451772222222200, 32.6284730555555500]));
+                routeCoord3.push(ol.proj.fromLonLat([121.2514483333333300, 32.6308897222222200]));
+                routeCoord4.push(ol.proj.fromLonLat([121.2389544444444500, 32.62603944444444400]));
+                routeCoord4.push(ol.proj.fromLonLat([121.2296572222222200, 32.64043166666666500]));
+                routeCoord4.push(ol.proj.fromLonLat([121.216842500, 32.640492500]));
+                routeCoord5.push(ol.proj.fromLonLat([121.2405983333333400, 32.6401083333333300]));
+                routeCoord5.push(ol.proj.fromLonLat([121.253697500, 32.6399780555555500]));
+                routeCoord5.push(ol.proj.fromLonLat([121.2616644444444500, 32.6401138888888900]));
+                routeCoord5.push(ol.proj.fromLonLat([121.2685633333333300, 32.6400444444444400]));
+                addText1("321集电线", 121.2635633333333300, 32.6340444444444400);
+                routeCoord5.push(ol.proj.fromLonLat([121.2755016666666700, 32.6399741666666700]));
+                routeCoord5.push(ol.proj.fromLonLat([121.2825022222222200, 32.6398630555555600]));
+                routeCoord6.push(ol.proj.fromLonLat([121.21508500, 32.6537880555555600]));
+                routeCoord6.push(ol.proj.fromLonLat([121.226162500, 32.6536802777777800]));
+                routeCoord6.push(ol.proj.fromLonLat([121.2284100, 32.6632519444444500]));
+                routeCoord6.push(ol.proj.fromLonLat([121.2365183333333400, 32.66474527777777600]));
+                routeCoord6.push(ol.proj.fromLonLat([121.2460244444444400, 32.66463027777777500]));
+                addText1("312集电线", 121.2300244444444400, 32.65863027777777500);
+                routeCoord6.push(ol.proj.fromLonLat([121.25500527777778, 32.66457638888889]));
+                // routeCoord6.push(ol.proj.fromLonLat([121.2884563888888900, 32.64361055555555400]));
+                routeCoord7.push(ol.proj.fromLonLat([121.2401666666666700, 32.6537019444444400]));
+                routeCoord7.push(ol.proj.fromLonLat([121.2519805555555600, 32.65360500]));
+                addText1("322集电线", 121.246805555555600, 32.64760500);
+                routeCoord7.push(ol.proj.fromLonLat([121.2643813888888900, 32.65343833333333400]));
+                routeCoord7.push(ol.proj.fromLonLat([121.2730155555555600, 32.6532138888888900]));
+                routeCoord7.push(ol.proj.fromLonLat([121.2802563888888900, 32.6531402777777800]));
+                routeCoord8.push(ol.proj.fromLonLat([121.281307500, 32.69006027777777500]));
+                routeCoord8.push(ol.proj.fromLonLat([121.28620500, 32.69342111111111400]));
+                addText1("342集电线", 121.27820500, 32.68742111111111400);
+                addText1("343集电线", 121.3153616666666700, 32.6870027777777800);
+                addText1("333集电线", 121.3456280555555600, 32.68667916666666500);
+                addText1("332集电线", 121.3873547222222200, 32.68623194444444400);
+                addText1("341集电线", 121.3527880555555500, 32.6750286111111100);
+                addText1("331集电线", 121.3210847222222300, 32.6624436111111100);
+                routeCoord8.push(ol.proj.fromLonLat([121.2927816666666700, 32.69335361111111400]));
+                routeCoord8.push(ol.proj.fromLonLat([121.2990602777777800, 32.69328861111111500]));
+                routeCoord8.push(ol.proj.fromLonLat([121.305687500, 32.69321972222222400]));
+                routeCoord8.push(ol.proj.fromLonLat([121.3125572222222200, 32.69314805555555400]));
+                routeCoord8.push(ol.proj.fromLonLat([121.3193636111111100, 32.6930766666666700]));
+                routeCoord8.push(ol.proj.fromLonLat([121.3263616666666700, 32.6930027777777800]));
+                routeCoord8.push(ol.proj.fromLonLat([121.3334636111111100, 32.692927500]));
+                routeCoord8.push(ol.proj.fromLonLat([121.3404116666666700, 32.6928536111111100]));
+                routeCoord9.push(ol.proj.fromLonLat([121.2990602777777800, 32.69328861111111500]));
+                routeCoord9.push(ol.proj.fromLonLat([121.2944152777777700, 32.6814633333333300]));
+                routeCoord9.push(ol.proj.fromLonLat([121.3043486111111100, 32.6810772222222200]));
+                routeCoord9.push(ol.proj.fromLonLat([121.3160988888888900, 32.6812911111111100]));
+                routeCoord10.push(ol.proj.fromLonLat([121.3224430555555500, 32.66853500]));
+                routeCoord10.push(ol.proj.fromLonLat([121.3310847222222300, 32.6684436111111100]));
+                routeCoord10.push(ol.proj.fromLonLat([121.3398358333333400, 32.66835055555555600]));
+                routeCoord10.push(ol.proj.fromLonLat([121.3482555555555500, 32.66826027777777600]));
+                routeCoord10.push(ol.proj.fromLonLat([121.35574500, 32.6707863888888900]));
+                routeCoord11.push(ol.proj.fromLonLat([121.331100, 32.68113305555555600]));
+                routeCoord11.push(ol.proj.fromLonLat([121.344651111111100, 32.6812241666666700]));
+                routeCoord11.push(ol.proj.fromLonLat([121.3551091666666700, 32.68111166666666600]));
+                routeCoord11.push(ol.proj.fromLonLat([121.3627880555555500, 32.6810286111111100]));
+                routeCoord11.push(ol.proj.fromLonLat([121.3709494444444500, 32.6809397222222200]));
+                routeCoord11.push(ol.proj.fromLonLat([121.3782869444444400, 32.68085916666666400]));
+                routeCoord12.push(ol.proj.fromLonLat([121.3483827777777700, 32.69276805555555400]));
+                routeCoord12.push(ol.proj.fromLonLat([121.3566280555555600, 32.69267916666666500]));
+                routeCoord12.push(ol.proj.fromLonLat([121.3646797222222200, 32.69259166666666500]));
+                routeCoord12.push(ol.proj.fromLonLat([121.3726441666666600, 32.69250500]));
+                routeCoord12.push(ol.proj.fromLonLat([121.3811477777777800, 32.69241166666666500]));
+                routeCoord13.push(ol.proj.fromLonLat([121.3859394444444500, 32.68178055555555500]));
+                routeCoord13.push(ol.proj.fromLonLat([121.3892427777777800, 32.69232222222222400]));
+                routeCoord13.push(ol.proj.fromLonLat([121.3973547222222200, 32.69223194444444400]));
+                routeCoord13.push(ol.proj.fromLonLat([121.40598500, 32.6921288888888900]));
+                routeCoord13.push(ol.proj.fromLonLat([121.4125280555555500, 32.6915483333333300]));
+                routeCoord14.push(ol.proj.fromLonLat([121.220252500, 32.6189333333333300]));
+                routeCoord14.push(ol.proj.fromLonLat([121.2266116666666700, 32.6215736111111100]));
+                routeCoord15.push(ol.proj.fromLonLat([121.2825022222222200, 32.6398630555555600]));
+                routeCoord15.push(ol.proj.fromLonLat([121.2802563888888900, 32.6531402777777800]));
+                routeCoord16.push(ol.proj.fromLonLat([121.2990602777777800, 32.69328861111111500]));
+                routeCoord16.push(ol.proj.fromLonLat([121.305687500, 32.69321972222222400]));
+                routeCoord17.push(ol.proj.fromLonLat([121.35574500, 32.6707863888888900]));
+                routeCoord17.push(ol.proj.fromLonLat([121.3551091666666700, 32.68111166666666600]));
+                routeCoord18.push(ol.proj.fromLonLat([121.3811477777777800, 32.69241166666666500]));
+                routeCoord18.push(ol.proj.fromLonLat([121.3892427777777800, 32.69232222222222400]));
+                routeCoord19.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord19.push(ol.proj.fromLonLat([121.2064258333333300, 32.6214497222222200]));
+                routeCoord20.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord20.push(ol.proj.fromLonLat([121.205617500, 32.6406647222222200]));
+                routeCoord21.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord21.push(ol.proj.fromLonLat([121.216842500, 32.640492500]));
+                routeCoord22.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord22.push(ol.proj.fromLonLat([121.2405983333333400, 32.6401083333333300]));
+                routeCoord23.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord23.push(ol.proj.fromLonLat([121.21508500, 32.6537880555555600]));
+                routeCoord24.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord24.push(ol.proj.fromLonLat([121.2401666666666700, 32.6537019444444400]));
+                routeCoord25.push(ol.proj.fromLonLat([121.32340, 32.68086]));
+                routeCoord25.push(ol.proj.fromLonLat([121.3160988888888900, 32.6812911111111100]));
+                routeCoord26.push(ol.proj.fromLonLat([121.32340, 32.68086]));
+                routeCoord26.push(ol.proj.fromLonLat([121.331100, 32.68113305555555600]));
+                routeCoord27.push(ol.proj.fromLonLat([121.32340, 32.68086]));
+                routeCoord27.push(ol.proj.fromLonLat([121.3263616666666700, 32.6930027777777800]));
+                routeCoord28.push(ol.proj.fromLonLat([121.32340, 32.68086]));
+                routeCoord28.push(ol.proj.fromLonLat([121.3224430555555500, 32.66853500]));
+                routeCoord29.push(ol.proj.fromLonLat([121.32340, 32.68086]));
+                routeCoord29.push(ol.proj.fromLonLat([121.3859394444444500, 32.68178055555555500]));
+                routeCoord30.push(ol.proj.fromLonLat([121.32340, 32.68086]));
+                routeCoord30.push(ol.proj.fromLonLat([121.3483827777777700, 32.69276805555555400]));
+                addText("35kv电缆", 121.220252500, 32.6089333333333300);
+                var route = new ol.geom.LineString(routeCoord1);
+                var routeFeature = new ol.Feature({
+                    type: 'route',
+                    geometry: route
+                });
+//               
+                styles = {
+                    'route': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route1 = new ol.geom.LineString(routeCoord2);
+                var routeFeature1 = new ol.Feature({
+                    type: 'route1',
+                    geometry: route1
+                });
+//               
+                styles = {
+                    'route1': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route2 = new ol.geom.LineString(routeCoord3);
+                var routeFeature2 = new ol.Feature({
+                    type: 'route2',
+                    geometry: route2
+                });
+//               
+                styles = {
+                    'route2': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route3 = new ol.geom.LineString(routeCoord4);
+                var routeFeature3 = new ol.Feature({
+                    type: 'route3',
+                    geometry: route3
+                });
+//               
+                styles = {
+                    'route3': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route4 = new ol.geom.LineString(routeCoord5);
+                var routeFeature4 = new ol.Feature({
+                    type: 'route4',
+                    geometry: route4
+                });
+//               
+                styles = {
+                    'route4': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route5 = new ol.geom.LineString(routeCoord6);
+                var routeFeature5 = new ol.Feature({
+                    type: 'route5',
+                    geometry: route5
+                });
+//               
+                styles = {
+                    'route5': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route6 = new ol.geom.LineString(routeCoord7);
+                var routeFeature6 = new ol.Feature({
+                    type: 'route6',
+                    geometry: route6
+                });
+//               
+                styles = {
+                    'route6': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route7 = new ol.geom.LineString(routeCoord8);
+                var routeFeature7 = new ol.Feature({
+                    type: 'route7',
+                    geometry: route7
+                });
+//               
+                styles = {
+                    'route7': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route8 = new ol.geom.LineString(routeCoord9);
+                var routeFeature8 = new ol.Feature({
+                    type: 'route8',
+                    geometry: route8
+                });
+//               
+                styles = {
+                    'route8': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route9 = new ol.geom.LineString(routeCoord10);
+                var routeFeature9 = new ol.Feature({
+                    type: 'route9',
+                    geometry: route9
+                });
+//               
+                styles = {
+                    'route9': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route10 = new ol.geom.LineString(routeCoord11);
+                var routeFeature10 = new ol.Feature({
+                    type: 'route10',
+                    geometry: route10
+                });
+//               
+                styles = {
+                    'route10': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route11 = new ol.geom.LineString(routeCoord12);
+                var routeFeature11 = new ol.Feature({
+                    type: 'route11',
+                    geometry: route11
+                });
+//               
+                styles = {
+                    'route11': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route12 = new ol.geom.LineString(routeCoord13);
+                var routeFeature12 = new ol.Feature({
+                    type: 'route12',
+                    geometry: route12
+                });
+//               
+                styles = {
+                    'route12': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [218, 165, 32, 0.8]
+                        })
+                    })
+                };
+                var route13 = new ol.geom.LineString(routeCoord14);
+                var routeFeature13 = new ol.Feature({
+                    //type: 'route13',
+                    geometry: route13
+                });
+//               
+                routeFeature13.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                lineDash: [1, 2, 3, 4, 5, 6],
+                                width: 1,
+                                color: 'blue'
+
+                            })
+                        })
+                        );
+                var route14 = new ol.geom.LineString(routeCoord15);
+                var routeFeature14 = new ol.Feature({
+                    // type: 'route14',
+                    geometry: route14
+                });
+//               
+                routeFeature14.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                lineDash: [1, 2, 3, 4, 5, 6],
+                                width: 1,
+                                color: 'blue'
+
+                            })
+                        })
+                        );
+                var route15 = new ol.geom.LineString(routeCoord16);
+                var routeFeature15 = new ol.Feature({
+                    //type: 'route15',
+                    geometry: route15
+                });
+//               
+                routeFeature15.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                lineDash: [1, 2, 3, 4, 5, 6],
+                                width: 1,
+                                color: 'blue'
+
+                            })
+                        })
+                        );
+                var route16 = new ol.geom.LineString(routeCoord17);
+                var routeFeature16 = new ol.Feature({
+                    //type: 'route16',
+                    geometry: route16
+                });
+//               
+                routeFeature16.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                lineDash: [1, 2, 3, 4, 5, 6],
+                                width: 1,
+                                color: 'blue'
+
+                            })
+                        })
+                        );
+                var route17 = new ol.geom.LineString(routeCoord18);
+                var routeFeature17 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route17
+                });
+//               
+                routeFeature17.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                lineDash: [1, 2, 3, 4, 5, 6],
+                                width: 1,
+                                color: 'blue'
+
+                            })
+                        })
+                        );
+                var route18 = new ol.geom.LineString(routeCoord19);
+                var routeFeature18 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route18
+                });
+//               
+                routeFeature18.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route19 = new ol.geom.LineString(routeCoord20);
+                var routeFeature19 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route19
+                });
+//               
+                routeFeature19.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route20 = new ol.geom.LineString(routeCoord21);
+                var routeFeature20 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route20
+                });
+//               
+                routeFeature20.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route21 = new ol.geom.LineString(routeCoord22);
+                var routeFeature21 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route21
+                });
+//               
+                routeFeature21.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route22 = new ol.geom.LineString(routeCoord23);
+                var routeFeature22 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route22
+                });
+//               
+                routeFeature22.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route23 = new ol.geom.LineString(routeCoord24);
+                var routeFeature23 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route23
+                });
+//               
+                routeFeature23.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route24 = new ol.geom.LineString(routeCoord25);
+                var routeFeature24 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route24
+                });
+//               
+                routeFeature24.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route25 = new ol.geom.LineString(routeCoord26);
+                var routeFeature25 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route25
+                });
+//               
+                routeFeature25.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route26 = new ol.geom.LineString(routeCoord27);
+                var routeFeature26 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route26
+                });
+//               
+                routeFeature26.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route27 = new ol.geom.LineString(routeCoord28);
+                var routeFeature27 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route27
+                });
+//               
+                routeFeature27.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route28 = new ol.geom.LineString(routeCoord29);
+                var routeFeature28 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route28
+                });
+//               
+                routeFeature28.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 1,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                var route29 = new ol.geom.LineString(routeCoord30);
+                var routeFeature29 = new ol.Feature({
+                    //type: 'route17',
+                    geometry: route29
+                });
+//               
+                routeFeature29.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                width: 2,
+                                color: '#7FFFAA'
+
+                            })
+                        })
+                        );
+                source35.addFeature(routeFeature);
+                source35.addFeature(routeFeature1);
+                source35.addFeature(routeFeature2);
+                source35.addFeature(routeFeature3);
+                source35.addFeature(routeFeature4);
+                source35.addFeature(routeFeature5);
+                source35.addFeature(routeFeature6);
+                source35.addFeature(routeFeature7);
+                source35.addFeature(routeFeature8);
+                source35.addFeature(routeFeature9);
+                source35.addFeature(routeFeature10);
+                source35.addFeature(routeFeature11);
+                source35.addFeature(routeFeature12);
+                source35.addFeature(routeFeature13);
+                source35.addFeature(routeFeature14);
+                source35.addFeature(routeFeature15);
+                source35.addFeature(routeFeature16);
+                source35.addFeature(routeFeature17);
+                source35.addFeature(routeFeature18);
+                source35.addFeature(routeFeature19);
+                source35.addFeature(routeFeature20);
+                source35.addFeature(routeFeature21);
+                source35.addFeature(routeFeature22);
+                source35.addFeature(routeFeature23);
+                source35.addFeature(routeFeature24);
+                source35.addFeature(routeFeature25);
+                source35.addFeature(routeFeature26);
+                source35.addFeature(routeFeature27);
+                source35.addFeature(routeFeature28);
+                source35.addFeature(routeFeature29);
+            }
+            function showsource110() {
+                var routeCoord1 = [];
+                var routeCoord2 = [];
+                var routeCoord3 = [];
+                addText("110kv电缆", 121.057523, 32.54693);
+                routeCoord1.push(ol.proj.fromLonLat([121.32340, 32.68086]));
+                routeCoord1.push(ol.proj.fromLonLat([121.26230, 32.66290]));
+                routeCoord1.push(ol.proj.fromLonLat([121.23940, 32.65461]));
+                routeCoord1.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord2.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord2.push(ol.proj.fromLonLat([121.20750, 32.63990]));
+                routeCoord2.push(ol.proj.fromLonLat([121.17830, 32.62492]));
+                routeCoord2.push(ol.proj.fromLonLat([121.047476, 32.55696]));
+                routeCoord3.push(ol.proj.fromLonLat([121.21130, 32.64252]));
+                routeCoord3.push(ol.proj.fromLonLat([121.20780, 32.63954]));
+                routeCoord3.push(ol.proj.fromLonLat([121.17860, 32.62454]));
+                routeCoord3.push(ol.proj.fromLonLat([121.05130, 32.55840]));
+                routeCoord3.push(ol.proj.fromLonLat([121.047523, 32.55693]));
+                var route = new ol.geom.LineString(routeCoord1);
+                var routeFeature = new ol.Feature({
+                    type: 'route',
+                    geometry: route
+                });
+                styles = {
+                    'route': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [237, 212, 0, 0.8]
+                        })
+                    })
+                };
+                var route1 = new ol.geom.LineString(routeCoord2);
+                var routeFeature1 = new ol.Feature({
+                    type: 'route1',
+                    geometry: route1
+                });
+                styles = {
+                    'route1': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 1,
+                            color: [237, 212, 0, 0.8]
+                        })
+                    })
+                };
+                var route2 = new ol.geom.LineString(routeCoord2);
+                var routeFeature2 = new ol.Feature({
+                    type: 'route2',
+                    geometry: route2
+                });
+                styles = {
+                    'route2': new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            width: 2,
+                            color: [237, 212, 0, 0.8]
+                        })
+                    })
+                };
+                source110.addFeature(routeFeature);
+                source110.addFeature(routeFeature1);
+                source110.addFeature(routeFeature2);
+            }
+            //显示电子围栏区域
+            function showEarea() {
+
+                $.ajaxSetup({
+                    async: false
+                });
+                var params = {};
+                params.sid = "get_earea";
+                //    params.condition = "id='" + Id + "'";
+                $.post("QueryDataServlet", params, function (mdata) {
+                    var datas = JSON.parse(mdata);
+                    if (datas.code === 0) {
+                        //成功
+                        var items = datas.result.data;
+                        console.dir(items);
+                        if (items !== null && items !== undefined) {
+                            for (var j = 0; j < items.length; j++) {
+                                var item = items[j];
+                                var pcollection = JSON.parse(item.pcollection);
+                                console.dir(pcollection.length);
+                                for (var i = 0; i < pcollection.length; i++) {
+                                    routeCoords1.push(pcollection[i].lonlat);
+                                }
+                                console.dir(routeCoords1);
+                            }
+                        }
+                    }
+                });
+                $.ajaxSetup({
+                    async: true
+                });
+                var plygon = new ol.geom.Polygon([routeCoords1]);
+                plygon = plygon.transform("EPSG:4326", map.getView().getProjection());
+                //多边形要素类
+                var feature = new ol.Feature({
+                    geometry: plygon
+                });
+                feature.setStyle(
+                        new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                lineDash: [1, 2, 3, 4, 5, 6],
+                                color: 'red',
+                                width: 0.5
+                            })
+                        })
+                        );
+                eareasource.addFeature(feature);
+                console.log(eareavector.getSource().getFeatures().length);
+                // map.addLayer(vector);
+            }
+            //隐藏电子围栏区域
+            function hideEarea() {
+                eareasource.clear();
+            }
+            //标注信息显示人员信息
+            function showStaff() {
+                $.ajaxSetup({
+                    async: false
+                });
+                //content.innerHTML="";
+                var param = {};
+                param.sid = "get_stafflocation";
+                param.condition = "shipNo='" + shipNo + "'";
+                $.post("QueryPopServlet", param, function (sdata) {
+                    var datas = JSON.parse(sdata);
+                    if (datas.code == 0) {
+                        //成功
+                        var items1 = datas.result.data;
+                        content.innerHTML = "<input type='radio'name='check' id='active1'style='display:none;' checked><label for='active1' onclick='showBoat()'>船舶信息</label><input type='radio'name='check' id='active2'style='display:none;' checked><label for='active2' onclick='showStaff()'>人员信息</label>";
+                        if (items1 !== null && items1 !== undefined && items1 !== [] && items1.length > 0) {
+                            for (var i = 0; i < items1.length; i++) {
+                                var item1 = items1[i];
+                                content.innerHTML = content.innerHTML + "<p>MMSI：" + item1.shipNo + "</p>" + "<p>工号/微信号：" + item1.codeOrNumber + "</p>" + "<p>姓名：" + item1.name + "</p>" + "<p>人员类型：" + item1.staffType + "</p>" + "<p>电话号码：" + item1.phoneNumber + "</p>";
+                            }
+                        } else {
+                            content.innerHTML = content.innerHTML + "<br><p>暂无人员数据</p>";
+                        }
+                    }
+                });
+                $.ajaxSetup({
+                    async: true
+                });
+            }
+            //标注信息显示人员信息
+            function showStaffs() {
+                $.ajaxSetup({
+                    async: false
+                });
+                //content.innerHTML="";
+                var param = {};
+                param.sid = "get_wmstaff";
+                param.condition = "machCode='" + machineSet + "'";
+                $.post("QueryPopServlet", param, function (sdata) {
+                    var datas = JSON.parse(sdata);
+                    if (datas.code == 0) {
+                        //成功
+                        var items1 = datas.result.data;
+                        content.innerHTML = "<input type='radio'name='check' id='active3'style='display:none;' checked><label for='active3' onclick='showWm()'>风机信息</label><input type='radio'name='check' id='active4'style='display:none;' checked><label for='active4' onclick='showStaffs()'>人员信息</label>";
+                        if (items1 !== null && items1 !== undefined && items1 !== [] && items1.length > 0) {
+                            for (var i = 0; i < items1.length; i++) {
+                                var item1 = items1[i];
+                                content.innerHTML = content.innerHTML + "<p>工号/微信号：" + item1.codeOrNumber + "</p>" + "<p>姓名：" + item1.name + "</p>" + "<p>人员类型：" + item1.staffType + "</p>" + "<p>电话号码：" + item1.phoneNumber + "</p>";
+                            }
+                        } else {
+                            content.innerHTML = content.innerHTML + "<br><p>暂无人员数据</p>";
+                        }
+                    }
+                });
+                $.ajaxSetup({
+                    async: true
+                });
+            }
+            //标注信息显示人员信息
+            function showStaffs1() {
+                $.ajaxSetup({
+                    async: false
+                });
+                //content.innerHTML="";
+                var param = {};
+                param.sid = "get_wmstaff";
+                param.condition = "machCode='" + machineSet + "'";
+                $.post("QueryPopServlet", param, function (sdata) {
+                    var datas = JSON.parse(sdata);
+                    if (datas.code == 0) {
+                        //成功
+                        var items1 = datas.result.data;
+                        content.innerHTML = "<input type='radio'name='check' id='active3'style='display:none;' checked><label for='active3' onclick='showWm1()'>升压站信息</label><input type='radio'name='check' id='active4'style='display:none;' checked><label for='active4' onclick='showStaffs1()'>人员信息</label>";
+                        if (items1 !== null && items1 !== undefined && items1 !== [] && items1.length > 0) {
+                            for (var i = 0; i < items1.length; i++) {
+                                var item1 = items1[i];
+                                content.innerHTML = content.innerHTML + "<p>工号/微信号：" + item1.codeOrNumber + "</p>" + "<p>姓名：" + item1.name + "</p>" + "<p>人员类型：" + item1.staffType + "</p>" + "<p>电话号码：" + item1.phoneNumber + "</p>";
+                            }
+                        } else {
+                            content.innerHTML = content.innerHTML + "<br><p>暂无人员数据</p>";
+                        }
+                    }
+                });
+                $.ajaxSetup({
+                    async: true
+                });
+            }
+            //标注信息显示风机信息
+            function showWm() {
+//                $.ajaxSetup({
+//                    async: false
+//                });
+                console.dir(machineSet);
+                content.innerHTML = "<input type='radio'name='check' id='active3'style='display:none;' checked><label for='active3' onclick='showWm()'>风机信息</label><input type='radio'name='check' id='active4'style='display:none;' checked><label for='active4' onclick='showStaffs()'>人员信息</label><p>机组编码：" + machineSet + "</p>" + "<p>机组名称：" + machineSetName + "</p>" + "</p>" + "<p>状态：" + state + "</p>" + "<p>状态描述：" + stateName + "</p>" + "<p>功率：" + power + " KM</p>" + "<p>风速：" + windSpeed + " m/s</p>" + "<p>报警信息：" + alarm + "</p>";
+            }
+            //标注信息显示升压站信息
+            function showWm1() {
+//                $.ajaxSetup({
+//                    async: false
+//                });
+                console.dir(machineSet);
+                content.innerHTML = "<input type='radio'name='check' id='active3'style='display:none;' checked><label for='active3' onclick='showWm1()'>升压站信息</label><input type='radio'name='check' id='active4'style='display:none;' checked><label for='active4' onclick='showStaffs()'>人员信息</label><p>机组编码：" + machineSet + "</p>" + "<p>机组名称：" + machineSetName + "</p>" + "</p>" + "<p>状态：" + state + "</p>" + "<p>状态描述：" + stateName + "</p>" + "<p>功率：" + power + " MM</p>" + "<p>风速：" + windSpeed + " m/s</p>" + "<p>报警信息：" + alarm + "</p>";
+            }
+            //标注信息显示船舶信息
+            function showBoat() {
+//                $.ajaxSetup({
+//                    async: false
+//                });
+                console.dir(shipNo + iname);
+                content.innerHTML = "<input type='radio'name='check' id='active1'style='display:none;' checked><label for='active1' onclick='showBoat()'>船舶信息</label><input type='radio'name='check' id='active2'style='display:none;' checked><label for='active2' onclick='showStaff()'>人员信息</label><p>MMSI：" + shipNo + "</p>" + "<p>船舶名称：" + iname + "</p>" + "<p>船首向：" + rotation + " 度</p>" + "<p>吨位：" + shipTon + " 吨</p>" + "<p>船长：" + shipLong + " 米</p>" + "<p>船宽：" + shipWide + " 米</p>" + "<p>吃水：" + sraft + " 米</p>" + "<p>航速：" + speed + " 节</p>" + "<p>最后时间：" + lastTime + "</p>" + "<p>是否公司船舶：" + isSelfShip + "</p><p style='height:25px'><button id='routereplay' style='margin-left:80%;margin-bottom: 20px;height: 25px;background:blue;color:white;' onclick='routereplay()'>轨迹</button></p>";
+            }
+            //轨迹回放
+            function routereplay(shipNo, startTime, endTime) {
+                routeCoords0 = [];
+                routeCoords = [];
+
+                //服务器接口参数
+                var params = {};
+                params.shipNo = shipNo;
+                params.startTime = startTime;
+                params.endTime = endTime;
+
+                //显示进度提示框
+                $("#loading_modal").modal("show");
+                $.post("QueryShipLocationHis", params, function (mdata) {
+                    //清空船舶弹出框
+//                    content.innerHTML = "";
+                    //显示进度提示框
+                    $("#loading_modal").modal("hide");
+                    var datas = JSON.parse(mdata);
+                    if (datas.code == 0) {
+                        //成功
+                        var items = datas.result.data;
+//                        console.dir(items);
+                        //经纬度的最大和最小值
+                        var max_lat = 0, max_lng = 0, min_lat = 65535, min_lng = 65535;
+                        if (items != null && items != undefined && items.length > 0) {
+                            routeCoords = [];
+                            routeCoords0 = [];
+                            timeCoords0 = [];
+                            timeCoords = [];
+                            for (var i = 0; i < items.length; i++) {
+                                var item = items[i];
+                                //经度
+                                var longitude = parseInt(item.longitude.replace(/\./g, "").substring(0, 11)) / 1000000;
+                                //维度
+                                var latitude = parseInt(item.latitude.replace(/\./g, "").substring(0, 11)) / 1000000;
+                                //找出最大最小值，典型冒泡排序法
+                                if (longitude > max_lng) {
+                                    max_lng = longitude;
+                                }
+                                if (longitude < min_lng) {
+                                    min_lng = longitude;
+                                }
+                                if (latitude > max_lat) {
+                                    max_lat = latitude;
+                                }
+                                if (latitude < min_lat) {
+                                    min_lat = latitude;
+                                }
+                                console.dir(item.latitude.replace(/\./g, "").substring(0, 11));
+                                //时间标签
+                                timeCoords0.push(item.lastTime);
+                                //轨迹点
+                                routeCoords0.push(ol.proj.fromLonLat([longitude, latitude]));
+                            }
+                            console.dir(timeCoords0);
+                            //addMachine(item.addname, 118.90173339843746, 29.231766241179272);
+                        } else {
+                            return;
+                        }
+
+                        //进行坐标转换
+                        //进行坐标转换
+                        var wgs84Sphere = new ol.Sphere(6378137);
+                        var jiChuChangdu = wgs84Sphere.haversineDistance([120.979804, 32.912345], [120.879804, 32.912345]);
+                        console.log(jiChuChangdu);
+                        DISTANCE = 0;
+                        //计算xy平面直接距离
+                        var XY_DISTAMCE = 0;
+                        //为了是轨迹平滑一点，中间增补一些临时点        
+                        for (var j = 0; j < routeCoords0.length - 1; j++) {
+                            //计算xy平面直线距离
+                            var mdx = routeCoords0[j + 1][0] - routeCoords0[j][0];
+                            var mdy = routeCoords0[j+  1][1] - routeCoords0[j][1];
+                            XY_DISTAMCE += parseFloat(Math.sqrt(mdx * mdx + mdy * mdy));
+                            //计算两点之间的球面距离
+                            var changdu = wgs84Sphere.haversineDistance(routeCoords0[j], routeCoords0[j + 1]); 
+                            console.dir("轨迹长度：" + changdu);
+                            DISTANCE = DISTANCE + changdu;
+                            count = changdu / jiChuChangdu; //共分几段
+                            count = count / 20;
+                            startx = routeCoords0[j][0];
+                            starty = routeCoords0[j][1];
+                            endx = routeCoords0[j + 1][0];
+                            endy = routeCoords0[j + 1][1];
+                            avg_x = (endx - startx) / count;
+                            avg_y = (endy - starty) / count;
+                            val_x = startx;
+                            val_y = starty;
+                            routeCoords.push(routeCoords0[j]);
+                            timeCoords.push(timeCoords0[j]);
+                            for (var i = 0; i < count; i++) {
+                                val_x += avg_x;
+                                val_y += avg_y;
+                                var val = [parseFloat(val_x.toFixed(6)), parseFloat(val_y.toFixed(6))];
+                                timeCoords.push(timeCoords0[j]);
+                                routeCoords.push(val);
+                            }
+                            routeCoords.push(routeCoords0[j + 1]);
+                            timeCoords.push(timeCoords0[j + 1]);
+                        }
+//                        console.log(timeCoords);
+
+                        //如果距离为0，表示该船舶一直静止在原地
+                        if (DISTANCE == 0) {
+                            var Marker = new ol.Feature({
+                                type: 'icon',
+                                geometry: new ol.geom.Point(routeCoords[0])
+                            });
+                            //清除上一条轨迹
+                            if (vectorLayer != null && vectorLayer != undefined) {
+                                map.removeLayer(vectorLayer);
+                            }
+                            map.render();
+                            //创建轨迹图层
+                            vectorLayer = new ol.layer.Vector({
+                                source: new ol.source.Vector({
+                                    features: [Marker]
+                                }),
+//                            style: styleFunction
+                                style: new ol.style.Style({
+                                    image: new ol.style.Icon({
+                                        anchor: [0.5, 0.5],
+                                        scale: 0.6,
+                                        src: 'images/mark_start.png'
+                                    })
+                                })
+                            });
+                            //添加折线图层
+                            map.addLayer(vectorLayer);
+                            //添加新的图层
+                            map.render();
+                            //结束时间  
+                            var end_str = (timeCoords0[timeCoords0.length - 1]).replace(/-/g, "/");//一般得到的时间的格式都是：yyyy-MM-dd hh24:mi:ss，所以我就用了这个做例子，是/的格式，就不用replace了。  
+                            var end_date = new Date(end_str);//将字符串转化为时间  
+                            //开始时间  
+                            var sta_str = (timeCoords0[0]).replace(/-/g, "/");
+                            var sta_date = new Date(sta_str);
+                            var num = (end_date - sta_date) / (1000 * 3600);//求出两个时间的时间差，这个是天数  
+                            var hours = parseInt(Math.ceil(num));//转化为整天（小于零的话剧不用转了） 
+                            //弹出提示框
+                            $.alert({
+                                title: '提示',
+                                content: '对不起，该船舶' + hours + '小时内没有移动，无法查询轨迹！'
+                            })
+                        } else {
+                            //创建轨迹线路
+                            var route = new ol.geom.LineString(routeCoords);
+                            routeLength = routeCoords.length;
+//                    console.dir(routeLength);
+                            var routeFeature = new ol.Feature({
+                                type: 'route',
+                                geometry: route
+                            });
+                            geoMarker = new ol.Feature({
+                                type: 'geoMarker',
+                                geometry: new ol.geom.Point(routeCoords[0])
+                            });
+                            var startMarker = new ol.Feature({
+                                type: 'icon',
+                                geometry: new ol.geom.Point(routeCoords[0])
+                            });
+                            var endMarker = new ol.Feature({
+                                type: 'icon',
+                                geometry: new ol.geom.Point(routeCoords[routeLength - 1])
+                            });
+                            //样式定义
+                            var styleFunction = function (type) {
+                                switch (type) {
+                                    case 'route':
+                                        return new ol.style.Style({
+                                            stroke: new ol.style.Stroke({
+                                                width: 1,
+                                                color: [128, 0, 128, 0.8]
+                                            })
+                                        });
+                                    case 'geoMarker':
+                                        return new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 0.5],
+                                                scale: 0.6,
+                                                src: 'images/arrow.png'
+                                            })
+                                        });
+                                    case 'icon':
+                                        return new ol.style.Style({
+                                            image: new ol.style.Icon({
+                                                anchor: [0.5, 0.5],
+                                                scale: 0.5,
+                                                src: 'images/mark_start.png'
+                                            })
+                                        });
+                                }
+                            }
+
+                            //清除上一条轨迹
+                            if (vectorLayer != null && vectorLayer != undefined) {
+                                map.removeLayer(vectorLayer);
+                            }
+                            map.render();
+                            //创建轨迹图层
+                            vectorLayer = new ol.layer.Vector({
+                                source: new ol.source.Vector({
+                                    features: [routeFeature, startMarker, endMarker]
+                                }),
+//                            style: styleFunction
+                                style: function (feature) {
+                                    return styleFunction(feature.get('type'));
+                                }
+                            });
+                            
+                            //添加时间标签
+                            for (var i = 0; i < routeCoords0.length - 1; i++) {
+                                var dx = routeCoords0[i + 1][0] - routeCoords0[i][0];
+                                var dy = routeCoords0[i + 1][1] - routeCoords0[i][1];
+                                var distance = Math.sqrt(dx * dx + dy * dy);
+                                // 创建一个Feature，并设置好在地图上的位置
+                                var anchor = new ol.Feature({
+                                    type: 'geoMarker',
+                                    geometry: new ol.geom.Point(routeCoords0[i])
+                                });
+                                console.info("changdu:" + distance + ";AVG_DISTANCE:" + XY_DISTAMCE / routeCoords0.length);
+                                var avg_xy_distance = XY_DISTAMCE / routeCoords0.length;
+                                if (distance > 2 * avg_xy_distance) {
+                                    anchor.setStyle(
+                                            new ol.style.Style({
+                                                geometry: new ol.geom.Point(routeCoords0[i]),
+                                                image: new ol.style.Icon({
+                                                    anchor: [0.5, 0.5],
+                                                    scale: 1,
+                                                    src: 'images/node.png'
+//                                            rotateWithView: true,
+//                                            rotation: -rotation
+                                                }),
+                                                text: new ol.style.Text({
+                                                    text: timeCoords0[i],
+                                                    scale: 1.5,
+                                                    offsetX: 0,
+                                                    offsetY: 20,
+                                                    backgroundStroke: new ol.style.Stroke({
+                                                        color: '#9932CD ',
+                                                        width: 1
+                                                    }),
+                                                    //标签的背景填充
+                                                    backgroundFill: new ol.style.Fill({
+                                                        color: 'rgba(255,255,255,0.2)'
+                                                    }),
+                                                    fill: new ol.style.Fill({
+                                                        color: 'black'
+                                                    }),
+                                                    stroke: new ol.style.Stroke({
+                                                        color: 'black',
+                                                        width: 0.3
+                                                    })
+                                                })
+                                            })
+                                            );
+                                } else {
+                                    anchor.setStyle(
+                                            new ol.style.Style({
+                                                geometry: new ol.geom.Point(routeCoords0[i]),
+                                                image: new ol.style.Icon({
+                                                    anchor: [0.5, 0.5],
+                                                    scale: 1,
+                                                    src: 'images/node.png'
+                                                })
+                                            })
+                                            );
+                                }
+                                // 添加到之前的创建的layer中去
+                                vectorLayer.getSource().addFeature(anchor);
+                                //计算箭头的方向
+                                if (i > 0 && i < routeCoords0.length - 2) {
+                                    var dx = routeCoords0[i + 1][0] - routeCoords0[i][0];
+                                    var dy = routeCoords0[i + 1][1] - routeCoords0[i][1];
+                                    var rotation = Math.atan2(dy, dx);
+                                    //计算箭头的位置
+                                    var x = (routeCoords0[i + 1][0] + routeCoords0[i][0]) / 2;
+                                    var y = (routeCoords0[i + 1][1] + routeCoords0[i][1]) / 2;
+
+                                    // 创建一个Feature，并设置好在地图上的位置
+                                    var arrow = new ol.Feature({
+                                        type: 'geoMarker',
+                                        geometry: new ol.geom.Point(routeCoords0[i])
+                                    });
+                                    arrow.setStyle(
+                                            new ol.style.Style({
+                                                geometry: new ol.geom.Point([x, y]),
+                                                image: new ol.style.Icon({
+                                                    anchor: [0.5, 0.5],
+                                                    scale: 1,
+                                                    src: 'images/arrow.png',
+                                                    rotateWithView: true,
+                                                    rotation: -rotation
+                                                })
+                                            })
+                                            );
+                                    //添加箭头图层
+                                    vectorLayer.getSource().addFeature(arrow);
+                                }
+                            }
+                            //为了显示的更清楚一点，调整分辨率
+                            var center_lat = 0, center_lng = 0;
+                            if (max_lat > 0 && min_lat > 0 && max_lng > 0 && min_lng > 0) {
+                                //计算中心点
+                                center_lat = (max_lat + min_lat) / 2;
+                                center_lng = (max_lng + min_lng) / 2;
+                                //维度差值
+                                var delta_lat = max_lat - min_lat;
+                                //经度差值
+                                var delta_lng = max_lng - min_lng;
+                                var resolution = 1;
+                                if (delta_lat > delta_lng) {
+                                    resolution = delta_lat * 200;
+                                } else {
+                                    resolution = delta_lng * 200;
+                                }
+//                            alert(resolution);
+                                map.getView().setCenter(ol.proj.transform([center_lng, center_lat], 'EPSG:4326', 'EPSG:3857'));
+                                map.getView().setResolution(resolution);
+                            }
+                            //添加折线图层
+                            map.addLayer(vectorLayer);
+                            map.render();
+                        }
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

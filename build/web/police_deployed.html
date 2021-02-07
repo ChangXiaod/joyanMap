@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>警力部署</title>
+        <!-- Bootstrap core CSS -->
+        <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!--external css-->
+        <link href="lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/style-responsive.css" rel="stylesheet">
+        <link rel="stylesheet" href="lib/bootstrap/css/bootstrap-table.css">
+        <link href="lib/bootstrap/css/jquery-confirm.min.css" rel="stylesheet" type="text/css"/>
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap-table.js" type="text/javascript"></script>
+        <script src="lib/bootstrap/js/bootstrap-table-zh-CN.js"></script>
+        <script src="lib/bootstrap/js/jquery-confirm.min.js" type="text/javascript"></script>
+        <script src="lib/myjs.js" type="text/javascript"></script>
+        
+		<style>
+			.m1{
+				color: #3e3e3e;
+				margin-left: 15px;
+				font-size: 15px;
+				font-weight: 300;
+				width: 300px;
+				height: 35px;
+				background: #FFFFFF;
+				border: 1px solid #C7C7C7;
+				border-radius: 4px;
+			}
+			.tc input{
+				color: #000000;
+			}
+		</style>
+    </head>
+
+    <body>
+        <section id="container">
+            <!-- **********************************************************************************************************************************************************
+              MAIN CONTENT
+              *********************************************************************************************************************************************************** -->
+            <section id="main-content" style="margin-top:10px;">
+                <section class="wrapper">                
+                    <div class="row ttls">
+                        <div class="col-md-4 ds tl">
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12" style="text-align: left;">
+                                    <div>
+                                            <label for="search">查询:</label>
+                                            <input type="search" id="key" name="search" size="30" placeholder="请输入关键字" />
+                                            <input type="submit" class="btn-primary" onclick="searchByKey()" />
+                                    </div>
+
+                                </div>
+                            </div>	
+                        </div>
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4 ds ttl">
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12">
+                                    <button type="button" class="btn btn-primary" onclick="show_add_modal()">+新增人员</button>
+                                </div>
+                            </div>	
+                        </div>
+                    </div>
+                    <div id = 'div_tab' class="row tl-p">				
+                        <table id="data_list" class="table table-striped table-bordered table-hover table-full-width">
+                        </table>
+                    </div>
+
+                </section>
+            </section>  
+        </section>
+
+
+        <!-- 模态框（Modal） -->
+
+        <div class="modal fade" style="position: absolute; top:0%;" id="add_deployed_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="background: #027AFF">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="modal_title">
+                            新增人员
+                        </h4>
+                    </div>
+                    <div class="modal-body tc">
+                        <table>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>任务名称</td>
+                                <td><input type="text" id="task_name" placeholder="请输入任务名称"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>时间段</td>
+                                <td>
+                                    <input class="my_calender" type="date" id="period_time"/>
+                                </td>
+                            </tr>  
+                            
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>总指挥</td>
+                                <td><input type="text" id="commander_chief" placeholder="请输入总指挥"></td>
+                               
+                            </tr>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>总警力</td>
+                                <td>    
+                                    <input type="text" id="total_forces" placeholder="总警力">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>场地名称</td>
+                                <td>    
+                                    <input type="text" id="site_name" placeholder="请输入场地名称">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>警力详情</td>
+                                <td>
+                                    <select class="m1" id="police_details">
+                                        <option value="一般警员" selected="selected">一般警员</option>
+                                        <option value="一般警员">一般警员</option>
+                                        <option value="科级">科级</option>
+                                        <option value="处级">处级</option>
+                                        <option value="局级">局级</option>
+                                   </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>记录增加时间</td>
+                                <td>
+                                    <input type="datetime-local" id="increase_time">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer" style="padding-top:0px;">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="operate_station()">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 删除人员信息弹窗提示 -->
+        <div id='delete_modal' class="modal fade" style="position: absolute; top: 30%;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content" style="width: 400px; height: auto">
+                    <div class="modal-header" style="background: #FFFFFF">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" style="text-align: center; color: #000000; font-weight: 600; font-size: 20px;" id="myModalLabel">
+                            删除人员
+                        </h4>
+                        <div class="sign">
+                            <img src="img/images/icon4-1.png">
+                        </div>
+                        <h4 style="text-align: center; color: #000000; font-size: 16px">
+                            您将永久删除此人员，无法恢复，是否继续？
+                        </h4>
+                        <div class="sign">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button style='margin-left: 15px;' type="button" class="btn btn-primary" data-dismiss="modal"  onclick="submit_del()">确定</button>
+                        </div>
+                    </div>	
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" style="position: absolute; top: 30%;" id="deSuccess" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content" style="width: 400px; height: auto">
+                    <div class="modal-header" style="background: #FFFFFF">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                    </div>
+                    <div class="sign">
+                        <img src="img/images/icon4-3.png">
+                    </div>
+                    <div class="sign">
+                        删除成功
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script type="text/javascript">
+            var editId;
+            //操作的类型：1为新增， 2为编辑
+            var operation = 1;
+            $(function () {
+                //设置表格区域的高度及宽度
+                document.getElementById("div_tab").style.height = (screen.availHeight * 0.7 - 15) + 'px';
+                //创建表
+                initTable();
+            });
+            $('#key').keydown(function (event) {
+                if (event.keyCode === 13) {
+                    searchByKey();
+                }
+            });
+            //根据关键字查询
+            function searchByKey() {
+                $('#data_list').bootstrapTable('removeAll');
+                $('#data_list').bootstrapTable("refresh");
+            }
+
+            //初始化表格
+            function initTable() { 
+                $('#data_list').bootstrapTable('removeAll');
+                $('#data_list').bootstrapTable({
+                    locale: 'zh-CN',
+                    pagination: true, //分页功能
+                    pageNumber: 1, //初始页面
+                    pageSize: 18, //每页行数
+                    pageList: [18, 50, 100],
+                    smartDisplay: true,
+                    clickToSelect: true, //是否启用点击选中行
+                    sidePagination: "server", //后台分页
+                    method: 'get',
+                    url: 'QueryDataServlet',
+                    dataField: 'data',
+                    queryParams: queryParams, //传给后台的查询参数
+                    responseHandler: responseHandler, //查询成功后执行方法
+                    columns: [
+                        {
+                            title: '序号', //标题  可不加 
+                            align:'center', 
+                            formatter: function (value, row, index) {
+                                return index + 1;
+                            }
+                        }, 
+                        {   
+                            title: '任务名称',
+                            align:'center',
+                            field: 'task_name'
+                        },
+                        {   
+                            title: '时间段',
+                            align:'center',
+                            field: 'period_time'
+                        },
+                        {   
+                            title: '总指挥',
+                            align:'center',
+                            field: 'commander_chief'
+                        },
+                        {
+                            title: '总警力',
+                            align:'center',
+                            field: 'total_forces'
+                        },
+                        {
+                            title: '场地名称',
+                            align:'center',
+                            field: 'site_name'
+                        },
+                        {
+                            title: '警力详情',
+                            align:'center',
+                            field: 'police_details'
+                        },
+                        {
+                            title: '记录增加时间',
+                            align:'center',
+                            field: 'increase_time'
+                        },
+                        {
+                            title: '操作',
+                            align:'center',
+                            field: 'id',
+                            formatter: operateFormatter
+                        }]
+                });
+            }
+
+            //请求成功方法
+            function responseHandler(mdata) {
+                var errcode = mdata.code;//在此做了错误代码的判断
+//                alert(JSON.stringify(mdata));
+                if (errcode != 0) {
+                    $.alert({
+                        title: '告警',
+                        content: "对不起，获取数据失败！",
+                    });
+                    return;
+                }
+                //缓存数据
+                sessionStorage.useritems = JSON.stringify(mdata.result.data);
+                //如果没有错误则返回数据，渲染表格
+                return {
+                    total: mdata.result.total, //总页数,前面的key必须为"total"
+                    data: mdata.result.data //行数据，前面的key要与之前设置的dataField的值一致.
+                };
+            }
+
+            //生成表格中按钮
+            function operateFormatter(value, row, index) {
+                return ["<a href='javascript:edit(" + row.id + ")'  title='编辑'><i class='icon-edit moveicon-left' style='color: #01bbd4'>编辑</i></a>\n\
+                         <a href='javascript:del(" + row.id + ")' title='删除'><i class='icon-remove moveicon-middle' style='color: rgb(254,67,101)'>删除</i></a>"].join('');
+            }
+
+            //请求服务数据时所传参数
+            function queryParams(params) {
+                //获取查询关键字
+                var key = document.getElementById("key").value;
+
+                //返回查询参数
+                return{
+                    //每页多少条数据
+                    rows: params.limit,
+                    //请求第几页
+                    page: params.pageNumber,
+                    sid: "get_deployed",
+                    // order: "update_time",
+                    desc: "false",
+                    key: key
+                }
+            }
+
+            //删除人员确认
+            function del(id) {
+                $('#delete_modal').modal('show');
+                editId = id;
+            }
+            //正式删除人员
+            function submit_del() {
+                var params = {};
+                params.sid = "delete_deployed";
+                params.condition = "id = " + editId;
+                $.post("DeleteDataServlet", params, function (mdata) {
+                    $('#delete_modal').modal('hide');
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        //成功
+                        $('#deSuccess').modal('show');
+                        //重新加载数据
+                        searchByKey();
+                    } else {
+                        $.alert({
+                            title: '提示!',
+                            content: data.info,
+                        });
+                    }
+                });
+            }
+
+
+            //显示增加班台的窗口
+            function show_add_modal() {
+                //显示新增框
+                $('#add_deployed_modal').modal('show');
+                $('#modal_title').html("新增人员");
+
+                //设置操作类型
+                operation = 1;
+            }
+
+            //点击确认后的操作动作
+            function operate_station() {
+                if (operation == 1) {
+                    add_deployed();
+                } else {
+                    update_deployed();
+                }
+            }
+
+            //将班台数据添加到数据库表中
+            function add_deployed() {
+                var params = {};
+                params.sid = 'add_deployed';
+                var item = getInputs();
+                //提交数据到数据库
+                if (item != null && item != undefined) {
+                    params.data = JSON.stringify(item);
+                    $.post('AddDataServlet', params, function (mdata) {
+                        //解析服务器端传回的json格式字符串
+                        var data = JSON.parse(mdata);
+                        if (data.code == 0) {
+                            $.alert({
+                                title: '提示!',
+                                content: "恭喜您，添加数据成功！",
+                            });
+                            $('#data_list').bootstrapTable("refresh");
+                        } else {
+                            $.alert({
+                                title: '提示!',
+                                content: data.info,
+                            });
+                        }
+
+                    });
+                }
+            }
+
+            //打开编辑窗口
+            function edit(id) {
+                //记录所要编辑的数据记录编号
+                editId = id;
+                 //设置操作类型
+                operation = 2;
+                //显示新增框
+                $('#add_deployed_modal').modal('show');
+                $('#modal_title').html("编辑人员");
+
+                //从数据库中加载数据
+                var params = {};
+                params.sid = 'get_deployed';
+                params.condition = 'id = ' + id;
+                //查询数据
+                $.post('QueryDataServlet', params, function(mdata){
+                    //解析json格式字符串
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        var item = data.result.data[0];
+                        //设置输入框的数据
+                        setInputs(item);
+                    }
+                })
+
+            }
+
+            //将人员数据添加到数据库表中
+            function update_deployed() {
+                var params = {};
+                params.sid = 'update_deployed';
+                var item = getInputs();
+                //提交数据到数据库
+                if (item != null && item != undefined) {
+                    params.data = JSON.stringify(item);
+                    params.condition = 'id = ' + editId;
+                    $.post('UpdateDataServlet', params, function (mdata) {
+                        //解析服务器端传回的json格式字符串
+                        var data = JSON.parse(mdata);
+                        if (data.code == 0) {
+                            $.alert({
+                                title: '提示!',
+                                content: "恭喜您，修改数据成功！",
+                            });
+                            $('#data_list').bootstrapTable("refresh");
+                        } else {
+                            $.alert({
+                                title: '提示!',
+                                content: data.info,
+                            });
+                        }
+
+                    });
+                }
+            }
+            
+           
+        </script>
+    </body>
+
+</html>

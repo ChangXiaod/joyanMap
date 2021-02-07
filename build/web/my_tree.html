@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <!-- Bootstrap core CSS -->
+        <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!--external css-->
+        <link href="lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
+        <!-- Custom styles for this template -->
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/style-responsive.css" rel="stylesheet">
+        <link rel="stylesheet" href="lib/jstree/dist/themes/default/style.min.css" />
+        <!--  包含jQuery库 -->
+        <script src="lib/jquery/jquery.js"></script>
+        <!--  包括缩小的jstree源文件 -->
+        <script src="lib/jstree/dist/jstree.min.js"></script>
+        <script>
+
+            var d = [
+                {"id": "0", "parent": "#", "text": "海军中心", "state": {"disabled": false, "opened": true, "selected": false}},
+                {"id": "1", "parent": "0", "text": "空军机构A", "state": {"opened": true}, icon: './img/favicon.png'},
+                {"id": "3", "parent": "1", "text": "装备部A", "state": {"opened": true}},
+                {"id": "4", "parent": "1", "text": "装备部B", "state": {"opened": true}},
+                {"id": "5", "parent": "3", "text": "设备检修A", "state": {"opened": true}},
+                {"id": "6", "parent": "3", "text": "设备检修B", "state": {"opened": true}},
+                {"id": "7", "parent": "6", "text": "检修班台A", "state": {"opened": true}},
+                {"id": "2", "parent": "0", "text": "空军机构B", "state": {"opened": true}},
+                {"id": "8", "parent": "2", "text": "装备部A", "state": {"opened": true}},
+                {"id": "9", "parent": "2", "text": "装备部B", "state": {"opened": true}},
+                {"id": "10", "parent": "8", "text": "设备检修A", "state": {"opened": true}},
+                {"id": "11", "parent": "8", "text": "设备检修B", "state": {"opened": true}},
+                {"id": "12", "parent": "11", "text": "检修班台A", "state": {"opened": true}},
+            ];
+
+            $(function ()
+            {
+                $('#jstree1').jstree(
+                        {
+                            "core": {
+                                "data": d,
+                                "themes":
+                                        {
+                                            "variant": "large", //加大
+                                            "ellipsis": true, //文字多时省略
+                                            "icons": false, //是否显示文件夹图标
+                                            // "dots":false,
+                                            // "responsive"：true,
+                                        },
+                                // "contextmenu":
+                                // 	{
+                                // 	"show_at_node":true,
+                                // 	}
+                                "check_callback": true,
+                            },
+                            "plugins": ["wholerow", "themes", "dnd", "contextmenu"],
+                            "contextmenu": {
+                                "show_at_node": false,
+                                "items": {
+                                    "create": null,
+                                    "rename": null,
+                                    "remove": null,
+                                    "ccp": null,
+                                    "新建子节点": {
+                                        "icon": "./img/tree_pic/new.jpg",
+                                        "label": "新建子节点",
+                                        "action": function create()
+                                        {
+                                            var ref = $('#jstree1').jstree(true);
+                                            var currNode = _getCurrNode();
+                                            currNode = ref.create_node(currNode, {"type": "file"});
+                                            if (currNode)
+                                            {
+                                                ref.edit(currNode);
+                                            }
+                                        }
+                                    },
+                                    "新建兄弟节点": {
+                                        "icon": "./img/tree_pic/new_bro.jpg",
+                                        "label": "新建兄弟节点",
+                                        "action": function create_brother()
+                                        {
+                                            var ref = $('#jstree1').jstree(true);
+                                            var currNode = _getCurrNode();
+                                            var parent_node = ref.get_parent(currNode);
+                                            newNode = ref.create_node(parent_node, {"type": "file"}, "first");
+                                            // var nextNode;
+                                            // do {
+                                            //     nextNode = ref.get_next_dom(newNode,true);
+                                            //     ref.move_node(newNode,nextNode,'after');
+                                            //  }
+                                            // while(get_text(currNode)!=get_text(nextNode));
+                                            if (newNode) {
+                                                ref.edit(newNode);
+                                            }
+                                        }
+                                    },
+                                    "删除菜单": {
+                                        "icon": "./img/tree_pic/delete.jpg",
+                                        "label": "删除节点",
+                                        "action": function (data) {
+                                            var inst = jQuery.jstree.reference(data.reference),
+                                                    obj = inst.get_node(data.reference);
+                                            if (confirm("确定要删除此菜单及其所有子节点？删除后不可恢复。")) {
+                                                jQuery.get("/accountmanage/deleteMenu?id=" + obj.id, function del()
+                                                {
+                                                    var ref = $('#jstree1').jstree(true);
+                                                    var currNode = _getCurrNode();
+                                                    ref.delete_node(currNode);
+                                                });
+                                            }
+                                        }
+                                    },
+                                    "编辑菜单": {
+                                        "icon": "./img/tree_pic/edit.jpg",
+                                        "label": "重命名",
+                                        "action": function rename()
+                                        {
+                                            var ref = $('#jstree1').jstree(true);
+                                            var currNode = _getCurrNode();
+                                            ref.edit(currNode);
+                                            // ref.rename_node(currNode,"rename node222");
+                                        }
+                                    },
+                                    "上移节点": {
+                                        "icon": "./img/tree_pic/up.jpg",
+                                        "label": "上移节点",
+                                        "action": function moveup()
+                                        {
+                                            var ref = $('#jstree1').jstree(true);
+                                            var currNode = _getCurrNode();
+                                            var prevNode = ref.get_prev_dom(currNode, true);
+                                            ref.move_node(currNode, prevNode, 'before');
+                                        }
+                                    },
+                                    "下移节点": {
+                                        "icon": "./img/tree_pic/down.jpg",
+                                        "label": "下移节点",
+                                        "action": function movedown()
+                                        {
+                                            var ref = $('#jstree1').jstree(true);
+                                            var currNode = _getCurrNode();
+                                            var nextNode = ref.get_next_dom(currNode, true);//返回兄弟节点的下一个节点
+                                            ref.move_node(currNode, nextNode, 'after');
+                                        }
+                                    },
+                                }
+                            }
+                        }).on('select_node.jstree', function (event, data) {
+                    console.log(data.node);
+                }).on('changed.jstree', function (event, data) {
+                    console.log("-----------changed.jstree");
+                    console.log("action:" + data.action);
+                    console.log(data.node);
+                }
+                );
+
+            });
+
+
+            /*  获取当前所选中的结点  */
+            function _getCurrNode()
+            {
+                var ref = $('#jstree1').jstree(true),
+                        sel = ref.get_selected();
+                console.log(sel);
+                if (!sel.length)
+                {
+                    console.log("----");
+                    return false;
+                }
+                sel = sel[0];
+                return sel;
+            }
+        </script>
+    </head>
+    <body>
+        <!-- <input type="button" value="创建子节点" onclick="create();">
+        <input type="button" value="添加同级节点" onclick="create_brother();">
+        <input type="button" value="节点重命名" onclick="rename();">
+        <input type="button" value="删除节点" onclick="del();">
+        <input type="button" value="节点上移" onclick="moveup();">
+        <input type="button" value="节点下移" onclick="movedown();"> -->
+        <div class="container" style="width: 100%;">
+            <div class="row">
+                <div class="col-md-3" style="margin-top:1.5%;">
+                    <div style="background: #6CB2FF; width: 100%; height: 40px; display: flex; flex-direction: row; align-items: center; padding-left: 30px;">
+                        <label style="font-size: 15px; font-family: PingFang SC; font-weight: bold; color: #001E3B;">组织结构树状图</label>
+                    </div>
+                    <div id="jstree1" style="width:100%;background:#DFDFDF;"></div>
+                </div>
+                <div class="col-md-9">
+                    <div class="row tlb">
+                        <div class="col-md-4 ds tl">
+                            <div class="row">
+                                <div class="col-md-2 col-sm-2"><p>筛选:</p></div>
+                                <div class="col-md-4 col-sm-4">
+                                    <div class="dropdown">
+                                        <button class="btn btn-default dropdown-toggle btn-sm" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true">
+                                            请选择班台
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                            <li><a href="#">一号班台</a></li>
+                                            <li><a href="#">二号班台</a></li>
+                                            <li><a href="#">三号班台</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-1 col-sm-1"></div>
+                                <div class="col-md-4 col-sm-4">
+                                    <div class="dropdown">
+                                        <button class="btn btn-default dropdown-toggle btn-sm" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true">
+                                            请选择单位
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                            <li><a href="#">海军第一部队空军飞行一组</a></li>
+                                            <li><a href="#">海军第一部队空军飞行一组</a></li>
+                                            <li><a href="#">海军第一部队空军飞行一组</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>	
+                        </div>
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4"></div>
+                    </div>
+                    <div class="row tl-p">				
+                        <table class="table table-hover table-striped tbl">
+                            <tr style="background: #E1E9FC; font-weight: 700">
+                                <td>序号</td>
+                                <td>班台</td>
+                                <td>所属单位</td>
+                                <td>位置</td>
+                            </tr>
+                
+                            <tr>
+                                <td>2</td>
+                                <td>二号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>一号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>二号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>一号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>二号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>一号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>一号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td>一号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                            <tr>
+                                <td>10</td>
+                                <td>一号班台</td>
+                                <td>海军第一部队空军飞行一组</td>
+                                <td>132.666；25.266</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+				<div class="modal-footer">
+				    <nav aria-label="Page navigation">
+				        <ul class="pagination">
+				            <li>
+				                <a href="#" aria-label="Previous">
+				                    <span aria-hidden="true">&laquo;</span>
+				                </a>
+				            </li>
+				            <li class="active"><a href="#">1</a></li>
+				            <li><a href="#">2</a></li>
+				            <li><a href="#">3</a></li>
+				            <li><a href="#">4</a></li>
+				            <li><a href="#">5</a></li>
+				            <li>
+				                <a href="#" aria-label="Next">
+				                    <span aria-hidden="true">&raquo;</span>
+				                </a>
+				            </li>
+				        </ul>
+				    </nav>
+				</div>
+            </div>
+            <!-- <div class="row di"> -->
+			<!-- <div class="modal-footer">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li>
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="active"><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                        <li>
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div> -->
+
+
+        </div>
+
+        <!-- <div id="jstree1" style="width:400px;background:#cccccc;"></div> -->
+    </body>
+</html>

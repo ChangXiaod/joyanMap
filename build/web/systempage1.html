@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>系统管理</title>
+        <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!--external css-->
+        <link href="lib/bootstrap/css/font-awesome.css" rel="stylesheet" />
+        <!-- Custom styles for this template -->
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/style-responsive.css" rel="stylesheet">
+        <link rel="stylesheet" href="lib/bootstrap/css/bootstrap-table.css">
+        <link href="lib/bootstrap/css/jquery-confirm.min.css" rel="stylesheet" type="text/css"/>
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+        <script src="lib/bootstrap/js/bootstrap-table.js" type="text/javascript"></script>
+        <script src="lib/bootstrap/js/bootstrap-table-zh-CN.js"></script>
+        <script src="lib/bootstrap/js/jquery-confirm.min.js" type="text/javascript"></script>
+        <script src="lib/myjs.js" type="text/javascript"></script>
+        <style>
+            .p1{
+                width: 33.33%;
+            }
+            
+        </style>
+    </head>
+
+    <body>
+        <div class="row tlbd" style="background: none;">
+            <div class="col-md-4 ds tl">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12" style="text-align: left;">
+                        <div>
+                            <label for="search">请输入搜索关键词：</label>
+                            <input type="search" id="key" name="search" size="30" placeholder="请输入关键字" />
+                            <input type="submit" class="btn-primary" onclick="searchByKey()"/>
+                        </div>
+                    </div>
+                    <!-- <div class="col-md-4 col-sm-4"></div> -->
+                </div>	
+            </div>
+            <div class="col-md-6"></div>
+            <div class="col-md-2 ds ttl">
+                <div class="row">
+                    <div class="col-md-4 col-sm-4">
+                        <button type="button" class="btn btn-primary" onclick='show_add_modal()'>+新增角色</button>
+                    </div>
+                </div>	
+            </div>
+        </div>
+        <div id = 'div_tab' class="row tl-p">				
+            <table id="data_list" class="table table-striped table-bordered table-hover table-full-width">
+            </table>
+        </div>
+        
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" style="position: absolute; top: 25%;" id="add_role_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="background: #027AFF">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="modal_title">
+                            新增角色
+                        </h4>
+                    </div>
+                    <div class="modal-body tc">
+                        <table>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>角色名称</td>
+                                <td><input type="text" id="role_name" placeholder="请输入角色名称"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>IP地址</td>
+                                <td><input type="text" id="ip" placeholder="请输入IP地址"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>角色描述</td>
+                                <td><input type="text" id="role_description" placeholder="请输入角色描述"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 17px; font-weight: 600"><span style="color: #FF4A4A;">*</span>授权配置</td>
+                                <td><input type="text" id="authorization" placeholder="请输入授权配置"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="operate_role()">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--删除角色弹窗提示-->
+        <div id='delete_modal' class="modal fade" style="position: absolute; top: 30%;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content" style="width: 400px; height: auto">
+                    <div class="modal-header" style="background: #FFFFFF">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" style="text-align: center; color: #000000; font-weight: 600; font-size: 20px;" id="myModalLabel">
+                            删除角色
+                        </h4>
+                        <div class="sign">
+                            <img src="img/images/icon4-1.png">
+                        </div>
+                        <h4 style="text-align: center; color: #000000; font-size: 16px">
+                            您将永久删除此角色，无法恢复，是否继续？
+                        </h4>
+                        <div class="sign">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button style='margin-left: 15px;' type="button" class="btn btn-primary" data-dismiss="modal"  onclick="submit_del()">确定</button>
+                        </div>
+                    </div>	
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" style="position: absolute; top: 30%;" id="deSuccess" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content" style="width: 400px; height: auto">
+                    <div class="modal-header" style="background: #FFFFFF">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                    </div>
+                    <div class="sign">
+                        <img src="img/images/icon4-3.png">
+                    </div>
+                    <div class="sign">
+                        删除成功
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <script type="text/javascript">
+            var editId;
+            //操作的类型：1为新增， 2为编辑
+            var operation = 1;
+
+            $(function () {
+                //设置表格区域的高度及宽度
+                document.getElementById("div_tab").style.height = (screen.availHeight * 0.7 - 15) + 'px';
+                document.getElementById("div_tab").style.margin = '20px 0 0 0';
+                document.getElementById("div_tab").style.width = (screen.availWidth * 0.88) + 'px';
+                //创建表
+                initTable();
+            });
+            $('#key').keydown(function (event) {
+                if (event.keyCode === 13) {
+                    searchByKey();
+                }
+            });
+            //根据关键字查询
+            function searchByKey() {
+                $('#data_list').bootstrapTable('removeAll');
+                $('#data_list').bootstrapTable("refresh");
+            }
+
+
+            //初始化角色表格
+            function initTable() {
+                $('#data_list').bootstrapTable('removeAll');
+                $('#data_list').bootstrapTable({
+                    locale: 'zh-CN',
+                    pagination: true, //分页功能
+                    pageNumber: 1, //初始页面
+                    pageSize: 20, //每页行数
+                    pageList: [20, 50, 100],
+                    smartDisplay: true,
+                    clickToSelect: true, //是否启用点击选中行
+                    sidePagination: "server", //后台分页
+                    method: 'get',
+                    url: 'QueryDataServlet',
+                    dataField: 'data',
+                    queryParams: queryParams, //传给后台的查询参数
+                    responseHandler: responseHandler, //查询成功后执行方法
+                    columns: [
+                        {
+                            title: '序号', //标题  可不加  
+                            formatter: function (value, row, index) {
+                                return index + 1;
+                            }
+                        },
+                        {
+                            title: '角色名称',
+                            field: 'role_name'
+                        },
+                        {
+                            title: 'IP地址',
+                            field: 'ip'
+                        },
+                        {
+                            title: '角色描述',
+                            field: 'role_description'
+                        },
+                        {
+                            title: '授权配置',
+                            field: 'authorization'
+                        },
+                        {
+                            title: '操作',
+                            field: 'id',
+                            formatter: operateFormatter}
+                    ]
+                });
+            }
+
+
+            //请求成功方法
+            function responseHandler(mdata) {
+                var errcode = mdata.code;//在此做了错误代码的判断
+//                alert(JSON.stringify(mdata));
+                if (errcode != 0) {
+                    $.alert({
+                        title: '告警',
+                        content: "对不起，获取数据失败！",
+                    });
+                    return;
+                }
+                //缓存数据
+                sessionStorage.useritems = JSON.stringify(mdata.result.data);
+                //如果没有错误则返回数据，渲染表格
+                return {
+                    total: mdata.result.total, //总页数,前面的key必须为"total"
+                    data: mdata.result.data //行数据，前面的key要与之前设置的dataField的值一致.
+                };
+            }
+
+            //生成表格中按钮
+            function operateFormatter(value, row, index) {
+                return ["<a href='javascript:edit(" + row.id + ")'  title='编辑'><i class='icon-edit moveicon-left' style='color: #01bbd4'>编辑</i></a>\n\
+                        <a href='javascript:del(" + row.id + ")' title='删除'><i class='icon-remove moveicon-middle' style='color: #01bbd4'>删除</i></a>"].join('');
+            }
+
+            //请求服务数据时所传参数
+            function queryParams(params) {
+                //获取查询关键字
+                var key = document.getElementById("key").value;
+
+
+                //返回查询参数
+                return{
+                    //每页多少条数据
+                    rows: params.limit,
+                    //请求第几页
+                    page: params.pageNumber,
+                    sid: "get_role",
+                    order: "update_time",
+                    desc: "false",
+                    key: key
+                }
+            }
+
+            //删除角色确认
+            function del(id) {
+                $('#delete_modal').modal('show');
+                editId = id;
+            }
+            //正式删除角色
+            function submit_del() {
+                var params = {};
+                params.sid = "delete_role";
+                params.condition = "id = " + editId;
+                $.post("DeleteDataServlet", params, function (mdata) {
+                    $('#delete_modal').modal('hide');
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        //成功
+                        $('#deSuccess').modal('show');
+                        //重新加载数据
+                        searchByKey();
+                    } else {
+                        $.alert({
+                            title: '提示!',
+                            content: data.info,
+                        });
+                    }
+                });
+            }
+
+
+
+            //显示增加角色的窗口
+            function show_add_modal() {
+
+                //显示计划新增框
+                $('#add_role_modal').modal('show');
+                $('#modal_title').html("新增角色");
+
+                //设置操作类型
+                operation = 1;
+            }
+
+            //点击确认后的操作动作
+            function operate_role() {
+                if (operation == 1) {
+                    add_role();
+                } else {
+                    update_role();
+                }
+            }
+
+
+
+            //将角色数据添加到数据库表中
+            function add_role() {
+                var params = {};
+                params.sid = 'add_role';
+                var item = getInputs();
+                //提交数据到数据库
+                if (item != null && item != undefined) {
+                    params.data = JSON.stringify(item);
+                    $.post('AddDataServlet', params, function (mdata) {
+                        //解析服务器端传回的json格式字符串
+                        var data = JSON.parse(mdata);
+                        if (data.code == 0) {
+                            $.alert({
+                                title: '提示!',
+                                content: "恭喜您，添加数据成功！",
+                            });
+                            $('#data_list').bootstrapTable("refresh");
+                        } else {
+                            $.alert({
+                                title: '提示!',
+                                content: data.info,
+                            });
+                        }
+
+                    });
+                }
+            }
+
+            //打开编辑窗口
+            function edit(id) {
+                //记录所要编辑的数据记录编号
+                editId = id;
+                //设置操作类型
+                operation = 2;
+
+
+                //显示编辑框
+                $('#add_role_modal').modal('show');
+                $('#modal_title').html("编辑角色");
+
+
+                //编辑时底层tlbd框禁止上移
+                $('.tlbc').css("margin-top","1%")
+
+                //从数据库中加载数据
+                var params = {};
+                params.sid = 'get_role';
+                params.condition = 'id = ' + id;
+                //查询数据
+                $.post('QueryDataServlet', params, function (mdata) {
+                    //解析json格式字符串
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        var item = data.result.data[0];
+                        //设置输入框的数据
+                        setInputs(item);
+                    }
+                })
+
+            }
+
+            //将班台数据添加到数据库表中
+            function update_role() {
+
+                var params = {};
+                params.sid = 'update_role';
+                var item = getInputs();
+                //提交数据到数据库
+                if (item != null && item != undefined) {
+                    params.data = JSON.stringify(item);
+                    params.condition = 'id = ' + editId;
+                    $.post('UpdateDataServlet', params, function (mdata) {
+                        //解析服务器端传回的json格式字符串
+                        var data = JSON.parse(mdata);
+                        if (data.code == 0) {
+                            $.alert({
+                                title: '提示!',
+                                content: "恭喜您，修改数据成功！",
+                            });
+                            $('#data_list').bootstrapTable("refresh");
+                        } else {
+                            $.alert({
+                                title: '提示!',
+                                content: data.info,
+                            });
+                        }
+
+                    });
+                }
+            }
+        </script>
+    </body>
+
+</html>

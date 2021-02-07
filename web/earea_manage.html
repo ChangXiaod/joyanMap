@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>电子围栏管理</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE10" />
+        <link href="media/css/bootstrap.css" rel="stylesheet" type="text/css">
+        <link href="media/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+        <link href="media/css/datetimepicker.css" rel="stylesheet" type="text/css"/>
+        <link href="media/css/style.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" type="text/css" href="media/css/select2_metro.css" />
+        <link rel="stylesheet" href="media/css/DT_bootstrap.css" />
+        <link rel="shortcut icon" href="media/image/favicon.ico" />
+        <script src="media/js/jquery-1.10.1.min.js" type="text/javascript"></script>
+        <script src="media/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="media/js/bootstrap-table.js" type="text/javascript"></script>
+        <script src="media/js/bootstrap-table-zh-CN.js"></script>
+        <script type="text/javascript" src="media/js/select2.min.js"></script>
+        <script type="text/javascript" src="media/js/jquery.dataTables.js"></script>
+        <script type="text/javascript" src="media/js/DT_bootstrap.js"></script>
+        <script src="media/js/app.js"></script>  
+        <script src="media/js/bootstrap-datetimepicker.js" type="text/javascript"></script>
+        <script src="media/js/myjs.js" type="text/javascript"></script>
+        <link href="media/css/jquery-confirm.min.css" rel="stylesheet" type="text/css"/>
+        <script src="media/js/jquery-confirm.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="media/css/bootstrap-select.css">
+        <link rel="stylesheet" href="media/css/bootstrap-table.css">
+        <style>
+            .moveicon-left {font-size:1.8em;float:left;margin-left:15%;}
+            .moveicon-middle {font-size:1.8em;float:left;margin-left:15%;}
+            .moveicon-right {font-size:1.8em;float:left;margin-left:15%;}
+            .table-responsive {
+                min-width: 960px;
+            }
+            .modal-footer{
+                height:60px;  
+            }
+            .btn:first-child{     
+                right: 15%;   
+            }
+            .btn:last-child{          
+                right: 2%;   
+            }
+        </style>
+        <script type="text/javascript">
+            var pageNum = 1;
+            var pageRow = 5;
+            var total;
+            var delID;
+            var aelement;
+            var rowNum = 0;
+            var inPageRowNum = 0;
+            var prePageRowNum = 0;
+            $(function () {
+                //设置表格区域的高度及宽度
+                document.getElementById("div_tab").style.height = (screen.availHeight * 0.7) + 'px';
+                $.ajaxSetup(
+                        {
+                            async: false
+                        });
+                initTable();
+                //     drawProject();
+                $.ajaxSetup(
+                        {
+                            async: true
+                        });
+            });
+
+            function queryParams(params) {
+                //返回查询参数
+                return{
+                    //每页多少条数据
+                    rows: params.limit,
+                    //请求第几页
+                    page: params.pageNumber,
+                    sid: "get_earea"}
+            }
+
+            //初始化表格
+            function initTable() {
+                $('#data_list').bootstrapTable('removeAll');
+                $('#data_list').bootstrapTable({
+                    locale: 'zh-CN',
+                    pagination: true, //分页功能
+                    pageNumber: 1, //初始页面
+                    pageSize: 10, //每页行数
+                    pageList: [20, 50, 100],
+                    smartDisplay: true,
+                    clickToSelect: true, //是否启用点击选中行
+                    sidePagination: "server", //后台分页
+                    method: 'get',
+                    url: 'QueryDataServlet',
+                    dataField: 'data',
+                    cache: false,
+                    queryParams: queryParams, //传给后台的查询参数
+                    responseHandler: responseHandler, //查询成功后执行方法
+
+                    columns: [
+                        {
+                            title: '序号', //标题  可不加  
+                            formatter: function (value, row, index) {
+                                return index + 1;
+                            }
+                        }, {//姓名
+                            field: 'name',
+                            title: '电子围栏名称'
+                        }, {
+                            field: 'pcollection',
+                            title: '电子围栏点集合'
+                        }, {
+                            field: 'time',
+                            title: '修改日期'
+                        }, {
+                            field: 'action',
+                            title: '操作',
+                            //events: operateEvents,
+                            width: 200,
+                            formatter: operateFormatter
+                        }]
+                });
+            }
+
+            //请求成功方法
+            function responseHandler(mdata) {
+                var errcode = mdata.code;//在此做了错误代码的判断
+                if (errcode != 0) {
+                    $.alert({
+                        title: '告警',
+                        content: "对不起，获取数据失败！",
+                    });
+                    return;
+                }
+
+                //缓存数据
+                sessionStorage.projects = JSON.stringify(mdata.result.data);
+                //如果没有错误则返回数据，渲染表格
+                return {
+                    total: mdata.result.total, //总页数,前面的key必须为"total"
+                    data: mdata.result.data //行数据，前面的key要与之前设置的dataField的值一致.
+                };
+            }
+
+
+
+            //生成表格中按钮
+            function operateFormatter(value, row, index) {
+                return [
+                    "<a href='earea_view.html?id=" + parseInt(row.id) + "' target='content' title='查看' ><i class=" + "'icon-book moveicon-middle'" + "></i></a>",
+                    "<a target='content' title='删除' onclick='delProject(" + parseInt(row.id) + ")'><i class=" + "'icon-remove-sign moveicon-right'" + "></i></a>"
+                ].join('');
+            }
+
+
+            //查看项目基础信息
+            function viewProject(id) {
+                var items = JSON.parse(sessionStorage.projects);
+                var i = 0;
+                for (; i < items.length; i++) {
+                    if (id == items[i].id) {
+                        var item = items[i];
+                        $("#rule_content").val(JSON.stringify(item));
+                    }
+                }
+                //显示预览窗口
+                $('#viewModal').modal('show')
+            }
+            //删除项目
+            function delProject(id) {
+                console.dir(id);
+                $('#myModal33').modal('show');
+                delID = id;
+                console.dir(delID);
+            }
+            //确认删除项目
+            function confirmDel() {
+                var params = {};
+                params.sid = "delete_earea";
+                params.condition = "id=" + delID;
+                $.post("DeleteDataServlet", params, function (mdata) {
+                    var data = JSON.parse(mdata);
+                    if (data.code == 0) {
+                        var param = {};
+                        param.sid = "delete_shipalarmrecord";
+                        param.condition = "id=" + delID;
+                        $.post("DeleteDataServlet", param, function (sdata) {
+
+                        });
+                        $.alert({
+                            title: '提示!',
+                            content: "选中电子围栏已删除！"
+                        });
+                        $('#data_list').bootstrapTable("refresh");
+                    }
+                });
+            }
+            //时间格式
+            function formatDate(date) {
+                var y = date.getFullYear();
+                var m = date.getMonth() + 1;
+                m = m < 10 ? '0' + m : m;
+                var d = date.getDate();
+                d = d < 10 ? ('0' + d) : d;
+                return y + '-' + m + '-' + d;
+            }
+
+
+        </script>
+
+    </head>
+    <body>
+
+        <div class="portlet box grey" style="width:100%;margin-bottom: 0px; border: none">
+            <div class="portlet-title">
+                <div class="caption" style="font-size:1.2em">电子围栏列表</div>
+                <a href="map.html" target="content" style="float:right;"> 
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                    <span class="title">返回</span>
+                </a>
+                <div class="actions">
+                    <a href="earea_add.html" class="btn blue"><i class="icon-plus-sign"></i> 添加电子围栏</a>
+                </div>
+            </div>
+        </div>
+        <div id='div_tab' class="portlet-body table-responsive" style="border:none;width: 100%; ">
+            <table id="data_list" class="table table-bordered table-hover">
+
+            </table>
+        </div>
+
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none; width:50%;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #236FA1; color: white;">
+                        <!--<a class="close button" data-dismiss="modal" aria-hidden="true"><i class="icon-remove moveicon-left" style="margin-right: 20px; color:white"></i></a>-->
+                        <h4 class="modal-title" id="myModalLabel">电子围栏查看</h4>
+                    </div>
+                    <div class="modal-body">
+                        <textarea name="rule_content" id="rule_content" cols="100" rows="16" style="width:98%;height:auto;" disabled></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="myModal33" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title" id="myModalLabel">确认删除该电子围栏？</h4>
+                    </div>
+                    <div class="modal-body">
+                        <h4>删除后您将无法找回已经保存的电子围栏信息</h4>
+                        <p>确认删除请点击“确认”按钮</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="confirmDel()">确认</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

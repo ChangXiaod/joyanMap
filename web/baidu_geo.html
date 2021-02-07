@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+        <style type="text/css">
+            body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="media/css/ol.css" rel="stylesheet" type="text/css"/>
+        <link href="media/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+        <link href="media/css/style.css" rel="stylesheet" type="text/css"/>
+        <link href="media/css/jquery-confirm.min.css" rel="stylesheet" type="text/css"/>
+        <link href="media/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <script src="media/js/jquery-1.10.1.min.js" type="text/javascript"></script>
+        <script src="media/js/bootstrap.min.js" type="text/javascript"></script>
+        <link href="media/css/style-metro.css" rel="stylesheet" type="text/css"/>
+        <!--<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=iYlr6nHqGOAyP0SKVj9q9KLY"></script>-->
+        <script type="text/javascript" src="media/js/bdapiv1.3.min.js"></script>
+        <title>添加行政区划</title>
+        <style>
+            .anchorBL{
+                display:none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="allmap" style="width:100%; height:400px;"></div>
+        <div>
+            <textarea id="pointers"  style="width:100%; height:300px; overflow:scroll;"></textarea>
+        </div>
+        <script type="text/javascript">
+            // 百度地图API功能
+            var bdmap;
+            bdmap = new BMap.Map("map");
+            bdmap.centerAndZoom(new BMap.Point(116.403765, 39.914850), 13);
+            bdmap.enableScrollWheelZoom();
+            var point = new BMap.Point(116.403765, 39.914850);
+            addMarker(point, "images/fanzcfd.gif");
+            //百度地图接口结束
+            var points = [];
+            getBoundary();
+            function getBoundary() {
+                var bdary = new BMap.Boundary();
+                bdary.get("江苏省", function (rs) {       //获取行政区域
+                    map.clearOverlays();        //清除地图覆盖物       
+                    var count = rs.boundaries.length; //行政区域的点有多少个
+                    for (var i = 0; i < count; i++) {
+                        points.push(rs.boundaries[i]);
+                        var ply = new BMap.Polygon(rs.boundaries[i], {strokeWeight: 1.5, strokeColor: "blue"}); //建立多边形覆盖物
+                        map.addOverlay(ply);  //添加覆盖物
+                        map.setViewport(ply.getPath());    //调整视野         
+                    }
+                    //打印出边界数据
+                    document.getElementById("pointers").value = JSON.stringify(points);
+                });
+            }
+
+            // 编写自定义函数,创建标注
+            function addMarker(point, url) {
+                // 创建自定义图标对象
+                var myIcon = new BMap.Icon(url, new BMap.Size(43, 55));
+                var marker = new BMap.Marker(point, {icon: myIcon});  // 创建标注
+                map.addOverlay(marker);
+                //        addClickHandler(html, marker);
+            }
+        </script>
+    </body>
+</html>
